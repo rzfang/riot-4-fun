@@ -1,0 +1,17 @@
+{
+  "name": "riot-4-fun",
+  "version": "0.0.1",
+  "description": "riot-4-fun is a HTTP server framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "riot",
+    "js",
+    "http",
+    "server"
+  ],
+  "author": "RZ Fang",
+  "license": "ISC"
+}
