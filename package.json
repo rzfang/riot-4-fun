@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "lint": "eslint --ext .js,.json ./*.js ./SRC/*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -13,5 +15,60 @@
     "server"
   ],
   "author": "RZ Fang",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@riotjs/compiler": "^6.4.2",
+    "@riotjs/ssr": "^8.1.2",
+    "async": "^3.2.4",
+    "busboy": "^1.6.0",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "node-sass": "^8.0.0",
+    "riot": "^7.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-plugin-json": "^3.1.0",
+    "pre-commit": "^1.2.2"
+  },
+  "pre-commit": [
+    "lint"
+  ],
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es6": true,
+      "jquery": true,
+      "node": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 11,
+      "sourceType": "module"
+    },
+    "plugins": [
+      "json"
+    ],
+    "rules": {
+      "no-console": [
+        "warn",
+        {
+          "allow": [
+            "warn",
+            "error"
+          ]
+        }
+      ],
+      "no-redeclare": [
+        "warn",
+        {
+          "builtinGlobals": true
+        }
+      ],
+      "no-unused-vars": [
+        "warn"
+      ]
+    }
+  }
 }
