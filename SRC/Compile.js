@@ -3,9 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import sass from 'node-sass';
 import { compile, registerPreprocessor } from '@riotjs/compiler';
+import { fileURLToPath } from 'url';
 
 import Cch from './Cache.js';
 import Log from './Log.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 registerPreprocessor(
   'css',
@@ -51,6 +55,24 @@ function SourceCodeSplit (SrcCd) {
   }
 
   return Cds;
+}
+
+/*
+  @ source code.
+  < source code without comments. */
+function CommentsClean (SrcCd) {
+  return SrcCd.replace(/\/\/ ?import .+\n/g, '\n');
+}
+
+/* to handle specific file path cases.
+  @ file path.
+  < adjusted file path. */
+function FilePathAdjust (FlPth) {
+  if (FlPth.includes('riot-4-fun/SRC/Store.riot')) {
+    return path.resolve(__dirname, './Store.riot');
+  }
+
+  return FlPth;
 }
 
 function ModulesCompile (FlPth, Then) {
@@ -195,6 +217,8 @@ export function Compile (FlPth, Tp = 'esm', Then) {
     @ imports.
     @ modules Js code. */
 export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
+  FlPth = FilePathAdjust(FlPth);
+
   const MdlsSrcCds = SourceCodeSplit(fs.readFileSync(FlPth, 'utf8')), // modules source codes.
         NwExtnsn = `.riot.${Extnsn}`; // new extension.
   let RsltImprts = [], // result import modules.
@@ -203,6 +227,9 @@ export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
   MdlsSrcCds.forEach(({ Nm, Cd }) => {
     const RE = /import .+\n+/g; // regular expression.
     let RsltCd = compile(Cd).code.replace('export default', `const ${Nm} =`); //result code; take off 'export default'.
+
+    RsltCd = CommentsClean(RsltCd); // take off all comments.
+
     let Imprts = RsltCd.match(RE) || [];
 
     Imprts = Imprts.map(Imprt => Imprt.replace('.riot', NwExtnsn).replace(/\n+/, ''));
@@ -248,8 +275,8 @@ export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
 
   return {
     ExprtDflt: 'export default ' + MdlsSrcCds[MdlsSrcCds.length - 1].Nm + ';', // final module as exported default module.
-    Imprts: RsltImprts,                                                // all 'import ...'.
-    MdlsCd: RsltMdlCds                                                        // all modulea code.
+    Imprts: RsltImprts,                                                        // all 'import ...'.
+    MdlsCd: RsltMdlCds                                                         // all modulea code.
   };
 }
 

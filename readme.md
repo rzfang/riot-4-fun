@@ -9,6 +9,10 @@ Let's play riot 4, FOR FUN.
 * [Sass](https://sass-lang.com/)
 
 ## Additional features
-* Multi-component can be written in one single file.
-* Store/Context is supported by mixin.
-* Server side rendering (SSR) is supported.
+* developer can write sub components before default exported component in one single file.
+* support Store/Context by mixin implementation.
+* support Server side rendering (SSR).
+
+## It is JUST for fun.
+I try to have a HTTP server solution for my only need, so there is no much wise choice or best practice.  
+Everything recalls a simple concept - easy using and fun for developer.

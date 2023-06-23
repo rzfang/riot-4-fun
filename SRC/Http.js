@@ -386,7 +386,7 @@ function Build (Cfg, Ext = 'js') {
     const FlPth = path.resolve(process.env.PWD, Cmpnt)
     const { ExprtDflt, Imprts, MdlsCd } = Compile2(FlPth, Ext, true),
           FlInfo = path.parse(FlPth); // file information.
-    const Cd = Imprts.join('\n') + '\n\n' + MdlsCd.map(({ Cd }) => Cd).join('\n\n') + ExprtDflt + '\n', // code.
+    const Cd = Imprts.join('\n') + '\n\n' + MdlsCd.map(({ Cd }) => Cd).join('\n\n') + '\n\n' + ExprtDflt + '\n', // code.
           RE = `${FlInfo.name}\\.riot\\..+\\.m?js$`;
     const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(Cd).digest('hex'); // hash.
     const JsFlPth = FlPth.replace('.riot', `.riot.${Hsh}.${Ext}`);
