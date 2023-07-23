@@ -1,6 +1,7 @@
 import busboy from 'busboy';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
+import esbuild from 'esbuild';
 import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
@@ -388,6 +389,7 @@ function Build (Cfg, Ext = 'js') {
           FlInfo = path.parse(FlPth); // file information.
     const Cd = Imprts.join('\n') + '\n\n' + MdlsCd.map(({ Cd }) => Cd).join('\n\n') + '\n\n' + ExprtDflt + '\n', // code.
           RE = `${FlInfo.name}\\.riot\\..+\\.m?js$`;
+
     const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(Cd).digest('hex'); // hash.
     const JsFlPth = FlPth.replace('.riot', `.riot.${Hsh}.${Ext}`);
 
@@ -398,7 +400,17 @@ function Build (Cfg, Ext = 'js') {
         OldJsFls.forEach(OldJsFl => { fs.unlinkSync(OldJsFl); }); // remove old Js files.
       }
 
-      fs.writeFileSync(JsFlPth, Cd);
+      const EsbCd = esbuild // esbuild code.
+        .buildSync({
+          bundle: true,
+          format: 'esm',
+          stdin: { contents: Cd },
+          target: 'esnext',
+          write: false })
+        .outputFiles[0]
+        .text;
+
+      fs.writeFileSync(JsFlPth, EsbCd);
       Log(`${JsFlPth} compiled and saved.`);
     }
 

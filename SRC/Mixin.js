@@ -181,6 +181,7 @@ export class Mixin {
     @ name to locate the store.
     @ NewStoreGet (Sto, Rst) = the function to get new store, this must return something to replace original store.
       @ original store data.
+      < new store object.
     @ params object passing to each task.
     < result code. 0 as fine, < 0 as error. */
   StoreSet (StoNm, NewStoreGet, PrmsToTsk) {
