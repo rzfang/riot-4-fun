@@ -400,17 +400,17 @@ function Build (Cfg, Ext = 'js') {
         OldJsFls.forEach(OldJsFl => { fs.unlinkSync(OldJsFl); }); // remove old Js files.
       }
 
-      const EsbCd = esbuild // esbuild code.
-        .buildSync({
-          bundle: true,
-          format: 'esm',
-          stdin: { contents: Cd },
-          target: 'esnext',
-          write: false })
-        .outputFiles[0]
-        .text;
+      fs.writeFileSync(JsFlPth, Cd);
 
-      fs.writeFileSync(JsFlPth, EsbCd);
+      // the source code has to be a file first, so esbuild can bundle Js from node_modules.
+      esbuild.buildSync({
+        allowOverwrite: true,
+        bundle: true,
+        entryPoints: [ JsFlPth ],
+        format: 'esm',
+        outfile: JsFlPth
+      });
+
       Log(`${JsFlPth} compiled and saved.`);
     }
 
