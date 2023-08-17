@@ -1,0 +1,2 @@
+- retire Store.riot props `store` rename to `name` warning.
+- retire Http.js `service.case` rename to `service` warning.

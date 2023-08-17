@@ -218,18 +218,18 @@ export class Mixin {
     // no stores, or only PAGE store.
     if (Stos.length === 0 || (Stos === 1 && Stos[0][1] === 'PAGE')) {
       return '<script type=\'module\'>\n' +
-        'import { RiotMixin } from \'/RiotMixin.js\';\n' +
-        'window.RMI = new RiotMixin();\n' +
-        'riot.install(Cmpnt => { window.RMI.Bind(Cmpnt); });\n' +
+        'import Riot4FunMixin from \'/riot-4-fun-mixin.js\';\n' +
+        'window.R4FMI = new Riot4FunMixin();\n' +
+        'riot.install(Cmpnt => { window.R4FMI.Bind(Cmpnt); });\n' +
         '</script>\n';
     }
 
     return '<script id=\'riot-store\' type=\'application/json\'>' + JSON.stringify(this.Srvc.Sto) + '</script>\n' +
       '<script type=\'module\'>\n' +
-      'import { RiotMixin } from \'/RiotMixin.js\';\n' +
-      'window.RMI = new RiotMixin();\n' +
-      'window.RMI.StoreInject(document.getElementById(\'riot-store\').textContent);\n' +
-      'riot.install(Cmpnt => { window.RMI.Bind(Cmpnt); });\n' +
+      'import Riot4FunMixin from \'/riot-4-fun-mixin.js\';\n' +
+      'window.R4FMI = new Riot4FunMixin();\n' +
+      'window.R4FMI.StoreInject(document.getElementById(\'riot-store\').textContent);\n' +
+      'riot.install(Cmpnt => { window.R4FMI.Bind(Cmpnt); });\n' +
       '</script>\n';
   }
 

@@ -92,18 +92,18 @@ function Riot4Render (Rqst, Bd, Then) {
 }
 
 /*
-  @ Riot mixin instance.
+  @ riot-4-fun mixin instance.
   @ page config.
   < HTML header inner HTML string. */
-function HeaderGet (RMI, PgCnfg) {
-  const RMIPgSto = RMI.StoreGet('PAGE') || {},
+function HeaderGet (R4FMI, PgCnfg) {
+  const R4FMIPgSto = R4FMI.StoreGet('PAGE') || {}, // riot-4-fun mixin instance page store.
         {
           title: Ttl,
           description: Dscrptn,
           keywords: Kywrds,
           author: Athr,
           favicon: Fvcn,
-          feed: Fd } = { ...PgCnfg, ...RMIPgSto };
+          feed: Fd } = { ...PgCnfg, ...R4FMIPgSto };
 
   let HdStr = '';
 
@@ -144,15 +144,15 @@ function PageRespond (Rqst, Rspns, Pth, PgCnfg) {
     return -1;
   }
 
-  Rqst.RMI = new Mixin(Rqst); // put Mixin instance into request object.
+  Rqst.R4FMI = new Mixin(Rqst); // put riot-4-fun mixin instance into request object.
 
-  riot.install(Cmpnt => { Rqst.RMI.Bind(Cmpnt); }); // bind Mixin functions to each component on server side rendering.
+  riot.install(Cmpnt => { Rqst.R4FMI.Bind(Cmpnt); }); // bind Mixin functions to each component on server side rendering.
 
   function Then (Cd, Rslt) {
     const { css: Css, js: Js } = PgCnfg;
     let BdStrs = '',
-        HdStrs = HeaderGet(Rqst.RMI, PgCnfg),
-        ScrptStrs = Bd.type === 'riot' ? Rqst.RMI.StorePrint() : '';
+        HdStrs = HeaderGet(Rqst.R4FMI, PgCnfg),
+        ScrptStrs = Bd.type === 'riot' ? Rqst.R4FMI.StorePrint() : '';
 
     if (!Is.Array(Css)) { Log(Pth + '\npage config css is not an array.', 'warn'); }
     else {
@@ -526,14 +526,18 @@ function Initialize (Cfg) {
       nameOnly: true
     },
     {
-      path: /Mixin\.js$/,
+      path: /riot-4-fun-mixin\.js$/,
       type: 'resource',
-      location: './node_modules/rzjs',
-      nameOnly: true
+      location: './node_modules/riot-4-fun/SRC',
+      fileName: 'Mixin.js'
     },
     ...Cfg.route ];
-  SvcCs = Cfg.service.case || {};
+  SvcCs = Cfg.service.case || Cfg.service || {};
   UpldFlPth = Cfg.uploadFilePath;
+
+  if (Cfg.service.case) {
+    Log('config file \'servie.case\' has been deprecated, please use \'service\' directly.', 'warn');
+  }
 
   Cfg.port && (Pt = Cfg.port);
 
@@ -541,6 +545,7 @@ function Initialize (Cfg) {
 
   Rt.forEach(OneRt => {
     const {
+      fileName: FlNm = '',
       location: Lctn = '',
       nameOnly: NmOnly = false,
       path: Pth,
@@ -566,7 +571,7 @@ function Initialize (Cfg) {
           }
 
           FlPth = decodeURI(Url.charAt(0) === '/' ? Url.substr(1) : Url);
-          FlPth = path.resolve(process.env.PWD, Lctn, NmOnly ? path.basename(FlPth) : FlPth);
+          FlPth = path.resolve(process.env.PWD, Lctn, FlNm || (NmOnly ? path.basename(FlPth) : FlPth));
 
           return FileRespond(Rqst, Rspns, FlPth);
 
