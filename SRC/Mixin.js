@@ -233,14 +233,6 @@ export class Mixin {
       '</script>\n';
   }
 
-  Trim (Str) {
-    if (typeof Str !== 'string') { return ''; }
-
-    if (typeof Str.trim === 'function') { return Str.trim(); }
-
-    return Str.replace(/^\s+|\s+$/g, '');
-  }
-
   /* a service which also take cover Store manage.
     @ URL string, the service entry point.
     @ params object to call service.
@@ -305,7 +297,6 @@ export class Mixin {
     Cmpnt.StoreUnleash = (...Vls) => this.StoreUnleash.apply(this, Vls);
     Cmpnt.StoreSet = (...Vls) => this.StoreSet.apply(this, Vls);
     Cmpnt.StorePrint = (...Vls) => this.StorePrint.apply(this, Vls);
-    Cmpnt.Trim = this.Trim;
 
     if (this.OnBrowser()) {
       Cmpnt.ServiceCall = (...Vls) => this.ServiceCall.apply(this, Vls);

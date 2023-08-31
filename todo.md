@@ -1,2 +1,4 @@
 - retire Store.riot props `store` rename to `name` warning.
 - retire Http.js `service.case` rename to `service` warning.
+- move out libraries which has been also in rzjs.
+- refactor to make Http Build, Initialize and Run functions independent from each other.
