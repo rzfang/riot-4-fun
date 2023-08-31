@@ -54,7 +54,7 @@ For eaiser code arrangement, we want to tear the whole component as several part
 **Be awared that the last compnent in the file will be the real export default component after compiling.**
 
 ### Support Store/Context.
-For easier handling datas as context/store acrossing components, here provide a simple `<store>` component which bases on riot mixin.
+For easier handling datas as context/store acrossing components, here provide a simple `<store>` component which bases on riot plugin.
 
 ```html
 <component>

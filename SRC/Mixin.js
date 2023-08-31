@@ -145,7 +145,7 @@ export class Mixin {
     return this.Srvc.Sto[Ky] || null;
   }
 
-  /*
+  /* currently, this is only used by Store.riot.
     @ name to locate the store.
     @ Then(Sto, PrmsToTsk) = then, a function when the task done.
       @ the store object.
@@ -164,7 +164,7 @@ export class Mixin {
     if (RnOnc && this.Srvc.Sto[StoNm]) { Then(this.Srvc.Sto[StoNm], null); } // if the task store is ready, call once first.
   }
 
-  /*
+  /* currently, this is only used by Store.riot.
     @ store name.
     @ target report. */
   StoreUnleash (StoNm, TgtRprt) {
@@ -197,7 +197,7 @@ export class Mixin {
     return 0;
   }
 
-  /*
+  /* the generated Riot code in browser will call this to initialize Riot-4-Fun Store.
     @ store json string. */
   StoreInject (StoStr) {
     try {
@@ -208,6 +208,8 @@ export class Mixin {
     }
   }
 
+  /* print store as browser Js code to initialize Riot-4-Fun Store support in browser environment.
+    this only works on node.js to generates HTML page source code. */
   StorePrint () {
     const Stos = Object.entries(this.Srvc.Sto);
 
@@ -293,10 +295,9 @@ export class Mixin {
     Cmpnt.OnBrowser = this.OnBrowser;
     Cmpnt.OnNode = (...Vls) => this.OnNode.apply(this, Vls); // Vls = values.
     Cmpnt.StoreGet = (...Vls) => this.StoreGet.apply(this, Vls);
-    Cmpnt.StoreListen = (...Vls) => this.StoreListen.apply(this, Vls);
-    Cmpnt.StoreUnleash = (...Vls) => this.StoreUnleash.apply(this, Vls);
+    Cmpnt.StoreListen = (...Vls) => this.StoreListen.apply(this, Vls); // currently, only Store.riot uses.
+    Cmpnt.StoreUnleash = (...Vls) => this.StoreUnleash.apply(this, Vls); // currently, only Store.riot uses.
     Cmpnt.StoreSet = (...Vls) => this.StoreSet.apply(this, Vls);
-    Cmpnt.StorePrint = (...Vls) => this.StorePrint.apply(this, Vls);
 
     if (this.OnBrowser()) {
       Cmpnt.ServiceCall = (...Vls) => this.ServiceCall.apply(this, Vls);

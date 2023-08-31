@@ -1,4 +1,7 @@
 - retire Store.riot props `store` rename to `name` warning.
 - retire Http.js `service.case` rename to `service` warning.
 - move out libraries which has been also in rzjs.
-- refactor to make Http Build, Initialize and Run functions independent from each other.
+- refactor, make Http Build, Initialize and Run functions independent from each other.
+- refactor, decouple 'riot-4-fun-mixin.js' in Mixin.js StorePrint and Http.js Initialize.
+- refactor, Mixin.js StoreListen, StoreUnleash are only needed in Store.riot.
+- update, there is no way call Mixin, but Plugin.
