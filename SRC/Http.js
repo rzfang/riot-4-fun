@@ -1,3 +1,4 @@
+import * as riot from 'riot';
 import busboy from 'busboy';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
@@ -6,7 +7,6 @@ import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
 import path from 'path';
-import riot from 'riot';
 import sass from 'sass';
 import ssr from '@riotjs/ssr';
 import url from 'url';
