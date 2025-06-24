@@ -1,6 +1,6 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "type": "module",
@@ -18,19 +18,19 @@
   "author": "RZ Fang",
   "license": "ISC",
   "dependencies": {
-    "@riotjs/compiler": "^6.4.2",
-    "@riotjs/ssr": "^8.1.2",
+    "@riotjs/compiler": "^9.0.0",
+    "@riotjs/ssr": "^9.0.0",
     "async": "^3.2.4",
     "busboy": "^1.6.0",
     "cookie-parser": "^1.4.6",
     "esbuild": "^0.18.10",
     "express": "^4.18.2",
     "helmet": "^7.0.0",
-    "node-sass": "^8.0.0",
-    "riot": "^7.1.0"
+    "riot": "^9.0.0",
+    "sass": "^1.89.2"
   },
   "devDependencies": {
-    "@riotjs/cli": "^6.1.0",
+    "@riotjs/cli": "^9.0.0",
     "eslint": "^8.40.0",
     "eslint-plugin-json": "^3.1.0",
     "pre-commit": "^1.2.2"

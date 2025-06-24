@@ -1,7 +1,7 @@
 import async from 'async';
 import fs from 'fs';
 import path from 'path';
-import sass from 'node-sass';
+import sass from 'sass';
 import { compile, registerPreprocessor } from '@riotjs/compiler';
 import { fileURLToPath } from 'url';
 

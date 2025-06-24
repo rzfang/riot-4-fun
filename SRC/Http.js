@@ -5,9 +5,9 @@ import esbuild from 'esbuild';
 import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
-import nodeSass from 'node-sass';
 import path from 'path';
 import riot from 'riot';
+import sass from 'sass';
 import ssr from '@riotjs/ssr';
 import url from 'url';
 
@@ -455,7 +455,7 @@ function Build (Cfg, Ext = 'js') {
 
       if (FlPth.substr(-5) === '.scss') {
         const Src = fs.readFileSync(FlPth, 'utf8'), // 'Src' = Source.
-              CSS = nodeSass.renderSync({ data: Src }).css.toString().replace(/\n +/g, ' ').replace(/\n\n/g, "\n");
+              CSS = sass.renderSync({ data: Src }).css.toString().replace(/\n +/g, ' ').replace(/\n\n/g, "\n");
         const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(CSS).digest('hex'); // hash.
         const RE = `${FlInfo.name}\\..+\\.css$`.replace(/\./g, '.');
 
