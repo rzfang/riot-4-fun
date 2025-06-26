@@ -1,7 +1,7 @@
+import * as sass from 'sass';
 import async from 'async';
 import fs from 'fs';
 import path from 'path';
-import sass from 'sass';
 import { compile, registerPreprocessor } from '@riotjs/compiler';
 import { fileURLToPath } from 'url';
 
@@ -15,14 +15,7 @@ registerPreprocessor(
   'css',
   'scss',
   Cd => {
-    // const { file } = options;
-
-    const Css = sass.renderSync({ data: Cd }).css.toString()
-      .replace(/\n +/g, ' ')
-      .replace(/\n\n/g, '\n')
-      .replace(/\}/g, '}\n')
-      .replace(/\n /g, '\n')
-      .replace(/ > /g, '>');
+    const { css: Css } = sass.compileString(Cd);
 
     return { code: Css, map: null };
   });

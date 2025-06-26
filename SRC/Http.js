@@ -1,4 +1,5 @@
 import * as riot from 'riot';
+import * as sass from 'sass';
 import busboy from 'busboy';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
@@ -7,7 +8,6 @@ import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
 import path from 'path';
-import sass from 'sass';
 import ssr from '@riotjs/ssr';
 import url from 'url';
 
@@ -441,8 +441,8 @@ function Build (Cfg, Ext = 'js') {
       (CssFls, Pg) => {
         if (!Is.Array(Pg.css)) { Log(`page's css is not an array.`, 'warn'); }
 
-        Pg.css.forEach(CSS => {
-          if (!CssFls.includes(CSS)) { CssFls.push(CSS); }
+        Pg.css.forEach(Css => {
+          if (!CssFls.includes(Css)) { CssFls.push(Css); }
         });
 
         return CssFls;
@@ -454,9 +454,8 @@ function Build (Cfg, Ext = 'js') {
       let FlInfo = path.parse(FlPth);
 
       if (FlPth.substr(-5) === '.scss') {
-        const Src = fs.readFileSync(FlPth, 'utf8'), // 'Src' = Source.
-              CSS = sass.renderSync({ data: Src }).css.toString().replace(/\n +/g, ' ').replace(/\n\n/g, "\n");
-        const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(CSS).digest('hex'); // hash.
+        const { css: Css } = sass.compile(FlPth);
+        const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(Css).digest('hex'); // hash.
         const RE = `${FlInfo.name}\\..+\\.css$`.replace(/\./g, '.');
 
         FlPth = FlPth.replace('.scss', `.${Hsh}.css`);
@@ -469,7 +468,7 @@ function Build (Cfg, Ext = 'js') {
             OldFls.forEach(OldFl => { fs.unlinkSync(OldFl); }); // remove old files.
           }
 
-          fs.writeFileSync(FlPth, CSS);
+          fs.writeFileSync(FlPth, Css);
           Log(`${FlPth} compiled and saved.`);
         }
 
