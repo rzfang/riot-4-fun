@@ -1,5 +1,6 @@
 import * as riot from 'riot';
 import * as sass from 'sass';
+import * as ssr from '@riotjs/ssr';
 import busboy from 'busboy';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
@@ -8,7 +9,6 @@ import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
 import path from 'path';
-import ssr from '@riotjs/ssr';
 import url from 'url';
 
 import Cch from './Cache.js';
