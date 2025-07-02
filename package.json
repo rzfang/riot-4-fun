@@ -1,24 +1,20 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "build": "riot ./SRC/Store.riot --output ./DST/store.riot.js",
-    "lint": "eslint --ext .js,.json ./*.js ./SRC/*.js ./DST/*.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "riot",
-    "js",
-    "http",
-    "server"
-  ],
+  "keywords": [ "riot", "js", "http", "server" ],
   "author": "RZ Fang",
   "license": "ISC",
+  "scripts": {
+    "build": "riot ./SRC/Store.riot --output ./DST/store.riot.js",
+    "lint": "eslint",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "@riotjs/compiler": "^9.0.0",
+    "@riotjs/hydrate": "^9.0.0",
     "@riotjs/ssr": "^9.0.0",
     "async": "^3.2.4",
     "busboy": "^1.6.0",
@@ -30,49 +26,12 @@
     "sass": "^1.89.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@eslint/json": "^0.12.0",
     "@riotjs/cli": "^9.0.0",
-    "eslint": "^8.40.0",
-    "eslint-plugin-json": "^3.1.0",
+    "eslint": "^9.30.1",
+    "globals": "^16.3.0",
     "pre-commit": "^1.2.2"
   },
-  "pre-commit": [
-    "build",
-    "lint"
-  ],
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "es6": true,
-      "jquery": true,
-      "node": true
-    },
-    "extends": "eslint:recommended",
-    "parserOptions": {
-      "ecmaVersion": 11,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "json"
-    ],
-    "rules": {
-      "no-console": [
-        "warn",
-        {
-          "allow": [
-            "warn",
-            "error"
-          ]
-        }
-      ],
-      "no-redeclare": [
-        "warn",
-        {
-          "builtinGlobals": true
-        }
-      ],
-      "no-unused-vars": [
-        "warn"
-      ]
-    }
-  }
+  "pre-commit": [ "build", "lint" ]
 }
