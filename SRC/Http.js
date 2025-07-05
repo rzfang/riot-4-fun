@@ -83,7 +83,16 @@ function Riot4Render (Rqst, Bd, Then) {
       const { html: HTML, css: CSS } = ssr.fragments(Nm, Mdl, Dt);
 
       Rslt.BdStr = HTML + '\n';
-      Rslt.ScrptStr = `<script type='module'>\nimport ${MdlNm} from '/${JsNm}';\nconst ${MdlNm}Shell = hydrate(${MdlNm});\n${MdlNm}Shell(document.querySelector('${Nm}'));\n</script>\n`;
+      Rslt.ScrptStr = `
+        <script type='module'>
+          import hydrate from 'https://cdn.jsdelivr.net/npm/@riotjs/hydrate@9.0.0/+esm';
+          import ${MdlNm} from '/${JsNm}';
+
+          const ${MdlNm}Shell = hydrate(${MdlNm});
+
+          ${MdlNm}Shell(document.querySelector('${Nm}'));
+        </script>
+      `;
 
       if (CSS) { Rslt.HdStr += `<style>${CSS}</style>\n`; }
 
@@ -193,7 +202,8 @@ function PageRespond (Rqst, Rspns, Pth, PgCnfg) {
 
       HdStrs += HdStr +
                 '<script src=\'/riot.min.js\'></script>\n' +
-                '<script type=\'module\' src=\'/hydrate.js\'></script>\n';
+                // '<script type=\'module\' src=\'/hydrate.js\'></script>\n';
+                '';
       BdStrs += BdStr;
       ScrptStrs += ScrptStr;
     }
