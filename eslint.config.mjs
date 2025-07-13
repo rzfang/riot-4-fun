@@ -19,8 +19,10 @@ export default defineConfig([
     plugins: { json },
   },
   {
+    extends: [ 'js/recommended' ],
     files: [ '**/*.{js,mjs,cjs}' ],
-    plugins: { js }, extends: [ 'js/recommended' ],
+    ignores: [ 'DST/*' ],
+    plugins: { js },
     rules: {
       'no-console': [ 'warn' ],
       "no-unused-vars": [ 'warn' ],

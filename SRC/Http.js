@@ -85,7 +85,6 @@ function Riot4Render (Rqst, Bd, Then) {
       Rslt.BdStr = HTML + '\n';
       Rslt.ScrptStr = `
         <script type='module'>
-          import hydrate from 'https://cdn.jsdelivr.net/npm/@riotjs/hydrate@9.0.0/+esm';
           import ${MdlNm} from '/${JsNm}';
 
           const ${MdlNm}Shell = hydrate(${MdlNm});
@@ -200,10 +199,22 @@ function PageRespond (Rqst, Rspns, Pth, PgCnfg) {
     else {
       const { HdStr, BdStr, ScrptStr } = Rslt;
 
-      HdStrs += HdStr +
-                '<script src=\'/riot.min.js\'></script>\n' +
-                // '<script type=\'module\' src=\'/hydrate.js\'></script>\n';
-                '';
+      HdStrs += HdStr + `
+        <script type='importmap'>
+          {
+            "imports": {
+              "riot": "/riot.min.js"
+            }
+          }
+        </script>
+        <script type="module">
+          import * as riot from '/riot.min.js';
+          import hydrate from '/hydrate.min.js';
+
+          window.riot = riot;
+          window.hydrate = hydrate;
+        </script>
+      `;
       BdStrs += BdStr;
       ScrptStrs += ScrptStr;
     }
@@ -523,16 +534,14 @@ function Initialize (Cfg) {
   Rt = [
     // append necessary files.
     {
-      path: /hydrate\.js$/,
+      path: /hydrate\.min.js$/,
       type: 'resource',
-      location: './node_modules/@riotjs/hydrate',
-      nameOnly: true
+      location: './node_modules/riot-4-fun/DST',
     },
     {
       path: /riot\.min\.js$/,
       type: 'resource',
-      location: './node_modules/riot',
-      nameOnly: true
+      location: './node_modules/riot-4-fun/DST',
     },
     {
       path: /riot-4-fun-mixin\.js$/,

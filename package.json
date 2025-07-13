@@ -1,6 +1,6 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "type": "module",
@@ -9,9 +9,11 @@
   "license": "ISC",
   "scripts": {
     "build": "riot ./SRC/Store.riot --output ./DST/store.riot.js",
+    "build:riot": "esbuild node_modules/riot/esm/riot.js --bundle --format=esm --minify --outfile=DST/riot.min.js && esbuild node_modules/@riotjs/hydrate/index.js --format=esm --minify --outfile=DST/hydrate.min.js",
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [ "/DST", "/SRC", "/index.js" ],
   "dependencies": {
     "@riotjs/compiler": "^9.0.0",
     "@riotjs/hydrate": "^9.0.0",
