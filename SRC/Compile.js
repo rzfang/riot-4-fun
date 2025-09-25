@@ -23,24 +23,24 @@ registerPreprocessor(
 function SourceCodeSplit (SrcCd) {
   if (!SrcCd) { return []; }
 
-  let Cds = [];
+  const Cds = [];
 
   while (SrcCd.length > 0) {
-    let TgInfo = SrcCd.match(/<([^/<>]+)>\n/); // tag info.
+    const TgInfo = SrcCd.match(/<([^/<>]+)>\n/); // tag info.
 
     if (!TgInfo || !TgInfo[1]) { break; }
 
-    let [ TgNm ] = TgInfo[1].split(' '); // tag name, options.
+    const [ TgNm ] = TgInfo[1].split(' '); // tag name, options.
 
     // ==== handle partial code ====
 
-    const StTg = `<${TgNm}>`, // start tag.
-          EndTg = `</${TgNm}>`, // end tag.
-          EndIdx = SrcCd.indexOf(EndTg) + EndTg.length, // end index.
-          Cd = SrcCd.substring(SrcCd.indexOf(StTg), EndIdx);
+    const StTg = `<${TgNm}>`; // start tag.
+    const EndTg = `</${TgNm}>`; // end tag.
+    const EndIdx = SrcCd.indexOf(EndTg) + EndTg.length; // end index.
+    const Cd = SrcCd.substring(SrcCd.indexOf(StTg), EndIdx);
 
     // name in Js code will be from tag name with camel case.
-    let Nm = TgNm.replace(/-\w/g, Str => Str.substr(1).toUpperCase());
+    const Nm = TgNm.replace(/-\w/g, Str => Str.substr(1).toUpperCase());
 
     Cds.push({ Nm, Cd });
 
@@ -84,8 +84,8 @@ function ModulesCompile (FlPth, Then) {
 
       // ==== get all 'import ... from ...;' and remove them from source code. ====
 
-      let Mdls = SrcCd.match(/import .+ from .+;\n/g) || [], // modules.
-          Tsks = [];
+      const Mdls = SrcCd.match(/import .+ from .+;\n/g) || []; // modules.
+      let Tsks = [];
 
       SrcCd = SrcCd.replace(/import .+ from .+;\n/g, '');
 
@@ -126,7 +126,7 @@ function ModulesCompile (FlPth, Then) {
             return Then(-2, []);
           }
 
-          let RsltMdls = {}; // packed Js module codes.
+          const RsltMdls = {}; // packed Js module codes.
 
           Mdls.map(Mdl => { Object.assign(RsltMdls, Mdl); });
 
@@ -161,9 +161,9 @@ export function Compile (FlPth, Tp = 'esm', Then) {
     (ErrCd, Mdls) => {
       const KyVPrs = Object.entries(Mdls);
 
-      let RiotMdlCd = '', // Riot module code.
-          RiotMdlKys = [], // Riot module keys.
-          JsMdlCd = ''; // Js module code.
+      const RiotMdlKys = []; // Riot module keys.
+      let JsMdlCd = ''; // Js module code.
+      let RiotMdlCd = ''; // Riot module code.
 
       for (let i = 0; i < KyVPrs.length; i++) {
         const [ Ky, V ] = KyVPrs[i];
@@ -212,10 +212,10 @@ export function Compile (FlPth, Tp = 'esm', Then) {
 export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
   FlPth = FilePathAdjust(FlPth);
 
-  const MdlsSrcCds = SourceCodeSplit(fs.readFileSync(FlPth, 'utf8')), // modules source codes.
-        NwExtnsn = `.riot.${Extnsn}`; // new extension.
-  let RsltImprts = [], // result import modules.
-      RsltMdlCds = []; // result modules code.
+  const MdlsSrcCds = SourceCodeSplit(fs.readFileSync(FlPth, 'utf8')); // modules source codes.
+  const NwExtnsn = `.riot.${Extnsn}`; // new extension.
+  const RsltImprts = []; // result import modules.
+  let RsltMdlCds = []; // result modules code.
 
   MdlsSrcCds.forEach(({ Nm, Cd }) => {
     const RE = /import .+\n+/g; // regular expression.
@@ -236,8 +236,8 @@ export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
   });
 
   if (MrgImprts) {
-    const ExtrMdlCds = [], // extra module codes.
-          RsltMdlNms = RsltMdlCds.map(({ Nm }) => Nm); // result module names.
+    const ExtrMdlCds = []; // extra module codes.
+    const RsltMdlNms = RsltMdlCds.map(({ Nm }) => Nm); // result module names.
 
     [ ...RsltImprts ].forEach(Imprt => { // clone then work.
       if (Imprt.indexOf(NwExtnsn) < 0) { return; }
@@ -269,7 +269,7 @@ export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
   return {
     ExprtDflt: 'export default ' + MdlsSrcCds[MdlsSrcCds.length - 1].Nm + ';', // final module as exported default module.
     Imprts: RsltImprts,                                                        // all 'import ...'.
-    MdlsCd: RsltMdlCds                                                         // all modulea code.
+    MdlsCd: RsltMdlCds,                                                        // all modulea code.
   };
 }
 

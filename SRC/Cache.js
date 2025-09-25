@@ -34,7 +34,7 @@ export const Cache = {
     @ key name.
     < true | false. */
   IsFileCached (Ky) {
-    let FlInfo = this.Cchs.Fls && this.Cchs.Fls[Ky] || null;
+    const FlInfo = this.Cchs.Fls && this.Cchs.Fls[Ky] || null;
 
     if (!FlInfo || !FlInfo.Dt || !FlInfo.Str) { return false; }
 
@@ -51,7 +51,7 @@ export const Cache = {
       return null;
     }
 
-    let Drtn = ((new Date()).getTime() - this.Cchs.Dt[Ky]['Dt']) / 1000; // duration.
+    const Drtn = ((new Date()).getTime() - this.Cchs.Dt[Ky]['Dt']) / 1000; // duration.
 
     return Drtn > this.Cchs.Dt[Ky]['ScndLmt'] ? null : this.Cchs.Dt[Ky]['Vl'];
   },
@@ -69,17 +69,17 @@ export const Cache = {
   },
   Recycle () {
     const NwTm = (new Date()).getTime(); // now time.
-    let Kys = Object.keys(this.Cchs.Dt); // keys.
+    const Kys = Object.keys(this.Cchs.Dt); // keys.
 
     for (let i = 0; i < Kys.length; i++) {
-      let Tgt = this.Cchs.Dt[Kys[i]]; // target.
+      const Tgt = this.Cchs.Dt[Kys[i]]; // target.
 
       if (!Tgt || !Tgt.Vl || !Tgt.Dt || !Tgt.ScndLmt) {
         delete this.Cchs.Dt[Kys[i]];
         continue;
       }
 
-      let Drtn = (NwTm - Tgt.Dt) / 1000; // duration.
+      const Drtn = (NwTm - Tgt.Dt) / 1000; // duration.
 
       if (Drtn > Tgt.ScndLmt) { delete this.Cchs.Dt[Kys[i]]; }
     }
@@ -96,7 +96,7 @@ export const Cache = {
     const MlScnd = Mnt * 60 * 1000; // millisecond.
 
     setInterval(this.Recycle.bind(this), MlScnd);
-  }
+  },
 };
 
 export default Cache;

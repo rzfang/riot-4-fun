@@ -24,15 +24,13 @@ function AJAX (Info) {
     }
   }
 
-  let DftInfo = {
-        URL: '',
-        Data: {},
-        Files: {},
-        Err: () => {}, // Error callback function. optional. 'Sts' = HTTP Status code.
-        OK: () => {}}, // OK callback function. optional. 'RpsTxt' = Response Text, 'Sts' = HTTP Status code.
-      FmDt, // 'FmDt' = Form Data.
-      XHR,
-      Kys; // 'Kys' = Keys.
+  const DftInfo = {
+    URL: '',
+    Data: {},
+    Files: {},
+    Err: () => {}, // Error callback function. optional. 'Sts' = HTTP Status code.
+    OK: () => {},
+  }; // OK callback function. optional. 'RpsTxt' = Response Text, 'Sts' = HTTP Status code.
 
   if (typeof Info.URL !== 'string' || Info.URL === '') { return null; }
 
@@ -44,17 +42,18 @@ function AJAX (Info) {
   Info.End = (typeof Info.End === 'function') ? Info.End : () => {};
   Info.Pgs = (typeof Info.Pgs === 'function') ? Info.Pgs : () => {}; // Progress callback function. optional.
 
-  FmDt = new FormData(),
-  XHR = new XMLHttpRequest();
-  Kys = Object.keys(Info.Data);
+  const FmDt = new FormData(); // 'FmDt' = Form Data.
+  const XHR = new XMLHttpRequest();
+  let Kys = Object.keys(Info.Data); // 'Kys' = Keys.
 
   for (let i = 0; i < Kys.length; i++) {
-    let Tp = typeof Info.Data[Kys[i]];
+    const Tp = typeof Info.Data[Kys[i]];
 
     if (Array.isArray(Info.Data[Kys[i]])) {
-      let Ky = Kys[i] + '[]',
-          Vl = Info.Data[Kys[i]],
-          Lth = Vl.length;
+      const Ky = Kys[i] + '[]';
+      const Vl = Info.Data[Kys[i]];
+
+      const Lth = Vl.length;
 
       for (let j = 0; j < Lth; j++) { FmDt.append(Ky, Vl[j]); }
     }
@@ -187,8 +186,9 @@ export class Mixin {
   StoreSet (StoNm, NewStoreGet, PrmsToTsk) {
     if (!StoNm || typeof StoNm !== 'string' || !NewStoreGet || typeof NewStoreGet !== 'function') { return -1; }
 
-    let Rprt = this.Srvc.Rprt[StoNm] || [],
-        Lnth = Rprt && Array.isArray(Rprt) && Rprt.length || 0;
+    const Rprt = this.Srvc.Rprt[StoNm] || [];
+
+    const Lnth = Rprt && Array.isArray(Rprt) && Rprt.length || 0;
 
     this.Srvc.Sto[StoNm] = NewStoreGet(this.Srvc.Sto[StoNm]);
 
@@ -268,7 +268,7 @@ export class Mixin {
         !NewStoreGet || typeof NewStoreGet !== 'function')
     { return -2; }
 
-    let Srvc = this.Srvc;
+    const Srvc = this.Srvc;
 
     AJAX({
       ...AjxOptns,
@@ -283,17 +283,18 @@ export class Mixin {
         Srvc.Sto[StoNm] = NewStoreGet(Srvc.Sto[StoNm], '');
       },
       OK: (RspnsTxt, Sts, XHR) => {
-        let CntTp = XHR.getResponseHeader('content-type'),
-            Rst = RspnsTxt,
-            Rprt = Srvc.Rprt[StoNm] || [],
-            Lnth = Rprt && Array.isArray(Rprt) && Rprt.length || 0;
+        const CntTp = XHR.getResponseHeader('content-type');
+        const Rprt = Srvc.Rprt[StoNm] || [];
+        let Rst = RspnsTxt;
+
+        const Lnth = Rprt && Array.isArray(Rprt) && Rprt.length || 0;
 
         if (Rst && (CntTp === 'application/json' || CntTp === 'text/json')) { Rst = JSON.parse(Rst); }
 
         Srvc.Sto[StoNm] = NewStoreGet(Srvc.Sto[StoNm], Rst);
 
         for (let i = 0; i < Lnth; i++) { Rprt[i](Srvc.Sto[StoNm], PrmsToTsk); }
-      }
+      },
     });
 
     return 0;

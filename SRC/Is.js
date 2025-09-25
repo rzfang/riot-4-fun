@@ -31,10 +31,11 @@ export const Is = {
     if (typeof Obj !== 'string') { return false; }
 
     return (
-        Obj.match(/^[0-9a-fA-F]{32}$/) ||
-        Obj.match(/^[0-9a-fA-F]{13}$/) ||
-        Obj.match(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/) ||
-        Obj.match(/^[0-9a-fA-F]{22}$/)) ? true : false;
+      Obj.match(/^[0-9a-fA-F]{32}$/) ||
+      Obj.match(/^[0-9a-fA-F]{13}$/) ||
+      Obj.match(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/) ||
+      Obj.match(/^[0-9a-fA-F]{22}$/)
+    ) ? true : false;
   },
   ArrayEqual: function (A, B) {
     if (!Array.isArray(A) || !Array.isArray(B)) { false; }
@@ -56,7 +57,7 @@ export const Is = {
     if (typeof TmStr !== 'string' || TmStr.length === 0) { return false; }
 
     return /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(TmStr);
-  }
+  },
 };
 
 export default Is;

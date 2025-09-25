@@ -33,12 +33,12 @@ const MM_TP = {
   '.txt':  'text/plain',
   '.xml':  'application/xml' }; // mime type map.
 
-let ErrPg, // error page.
-    Pg, // page.
-    Pt = 9004, // port.
-    Rt = [], // route.
-    SvcCs = {}, // service case.
-    UpldFlPth; // uploaded file path.
+let ErrPg; // error page.
+let Pg; // page.
+let Pt = 9004; // port.
+let Rt = []; // route.
+let SvcCs = {}; // service case.
+let UpldFlPth; // uploaded file path.
 
 const App = express();
 
@@ -64,14 +64,15 @@ function HtmlRender (Bd, Then) {
 
 function Riot4Render (Rqst, Bd, Then) {
   const { component: Cmpnt, componentJs: CmpntJs, module: Mdl } = Bd;
-  const JsNm = path.basename(CmpntJs),
-        { name: Nm } = path.parse(Cmpnt); // path info.
-  const MdlNm = Nm.replace(/-\w/g, Str => Str.substr(1).toUpperCase()); // module name.
 
-  let Rslt = { // result.
+  const JsNm = path.basename(CmpntJs);
+  const { name: Nm } = path.parse(Cmpnt); // path info.
+
+  const MdlNm = Nm.replace(/-\w/g, Str => Str.substr(1).toUpperCase()); // module name.
+  const Rslt = { // result.
     HdStr: '', // head string.
     BdStr: '', // body string.
-    ScrptStr: '' // script stream.
+    ScrptStr: '', // script stream.
   };
 
   Bd.initialize(
@@ -104,14 +105,16 @@ function Riot4Render (Rqst, Bd, Then) {
   @ page config.
   < HTML header inner HTML string. */
 function HeaderGet (R4FMI, PgCnfg) {
-  const R4FMIPgSto = R4FMI.StoreGet('PAGE') || {}, // riot-4-fun mixin instance page store.
-        {
-          title: Ttl,
-          description: Dscrptn,
-          keywords: Kywrds,
-          author: Athr,
-          favicon: Fvcn,
-          feed: Fd } = { ...PgCnfg, ...R4FMIPgSto };
+  const R4FMIPgSto = R4FMI.StoreGet('PAGE') || {}; // riot-4-fun mixin instance page store.
+
+  const {
+    author: Athr,
+    description: Dscrptn,
+    favicon: Fvcn,
+    feed: Fd,
+    keywords: Kywrds,
+    title: Ttl,
+  } = { ...PgCnfg, ...R4FMIPgSto };
 
   let HdStr = '';
 
@@ -127,7 +130,8 @@ function HeaderGet (R4FMI, PgCnfg) {
 
   if (Fd) { HdStr += `<link rel='alternate' type='application/atom+xml' title='atom' href='${Fd}'/>\n`; }
 
-  HdStr += `<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>\n`;
+  HdStr +=
+    `<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>\n`;
 
   return HdStr;
 }
@@ -158,9 +162,9 @@ function PageRespond (Rqst, Rspns, Pth, PgCnfg) {
 
   function Then (Cd, Rslt) {
     const { css: Css, js: Js } = PgCnfg;
-    let BdStrs = '',
-        HdStrs = HeaderGet(Rqst.R4FMI, PgCnfg),
-        ScrptStrs = Bd.type === 'riot' ? Rqst.R4FMI.StorePrint() : '';
+    let BdStrs = '';
+    let HdStrs = HeaderGet(Rqst.R4FMI, PgCnfg);
+    let ScrptStrs = Bd.type === 'riot' ? Rqst.R4FMI.StorePrint() : '';
 
     if (!Is.Array(Css)) { Log(Pth + '\npage config css is not an array.', 'warn'); }
     else {
@@ -221,7 +225,7 @@ function PageRespond (Rqst, Rspns, Pth, PgCnfg) {
 
     Rspns.writeHead(Rspns.statusCode, { 'Content-Type': 'text/html' });
     Rspns.write(
-      "<!DOCTYPE HTML>\n<html>\n<head>\n<meta charset='utf-8'/>\n" +
+      '<!DOCTYPE HTML>\n<html>\n<head>\n<meta charset=\'utf-8\'/>\n' +
       HdStrs +
       '</head>\n<body>\n' +
       BdStrs +
@@ -305,9 +309,9 @@ function FileRespond (Rqst, Rspns, FlPth, ExprScd = 3600) {
         return;
       }
 
-      const Expr = ExprScd.toString(), // expire seconds string.
-            Mms = St.mtimeMs || (new Date(St.mtime)).getTime(), // mtime milisecond.
-            IfMdfSnc = Rqst.headers['if-modified-since']; // if-modified-since.
+      const Expr = ExprScd.toString(); // expire seconds string.
+      const IfMdfSnc = Rqst.headers['if-modified-since']; // if-modified-since.
+      const Mms = St.mtimeMs || (new Date(St.mtime)).getTime(); // mtime milisecond.
 
       if (IfMdfSnc && IfMdfSnc !== 'Invalid Date') {
         const ChkdMs = (new Date(IfMdfSnc)).getTime(); // checked milisecond.
@@ -332,7 +336,7 @@ function FileRespond (Rqst, Rspns, FlPth, ExprScd = 3600) {
         {
           'Cache-Control': 'public, max-age=' + Expr,
           'Content-Type': MmTp + '; charset=utf-8',
-          'Last-Modified': (new Date(Mms + 1000)).toUTCString()
+          'Last-Modified': (new Date(Mms + 1000)).toUTCString(),
         });
 
       RdStrm.pipe(Rspns);
@@ -344,8 +348,8 @@ function BodyParse (Rqst, Rspns, Next) {
 
   const BsBy = busboy({ headers: Rqst.headers, fileSize: 1024 * 1024 * 10, files: 100 }); // file size: 10mb.
 
-  let Flds = {}, // body fields.
-      Fls = []; // files.
+  const Flds = {}; // body fields.
+  const Fls = []; // files.
 
   BsBy.on(
     'file',
@@ -406,10 +410,12 @@ function Build (Cfg, Ext = 'js') {
 
   Cmpnts.map(Cmpnt => {
     const FlPth = path.resolve(process.env.PWD, Cmpnt)
-    const { ExprtDflt, Imprts, MdlsCd } = Compile2(FlPth, Ext, true),
-          FlInfo = path.parse(FlPth); // file information.
-    const Cd = Imprts.join('\n') + '\n\n' + MdlsCd.map(({ Cd }) => Cd).join('\n\n') + '\n\n' + ExprtDflt + '\n', // code.
-          RE = `${FlInfo.name}\\.riot\\..+\\.m?js$`;
+
+    const FlInfo = path.parse(FlPth); // file information.
+    const { ExprtDflt, Imprts, MdlsCd } = Compile2(FlPth, Ext, true);
+
+    const Cd = Imprts.join('\n') + '\n\n' + MdlsCd.map(({ Cd }) => Cd).join('\n\n') + '\n\n' + ExprtDflt + '\n'; // code.
+    const RE = `${FlInfo.name}\\.riot\\..+\\.m?js$`;
 
     const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(Cd).digest('hex'); // hash.
     const JsFlPth = FlPth.replace('.riot', `.riot.${Hsh}.${Ext}`);
@@ -429,7 +435,7 @@ function Build (Cfg, Ext = 'js') {
         bundle: true,
         entryPoints: [ JsFlPth ],
         format: 'esm',
-        outfile: JsFlPth
+        outfile: JsFlPth,
       });
 
       Log(`${JsFlPth} compiled and saved.`);
@@ -449,7 +455,7 @@ function Build (Cfg, Ext = 'js') {
       path: new RegExp(JsFlInfo.base + '$'),
       type: 'resource',
       location: JsFlInfo.dir,
-      nameOnly: true
+      nameOnly: true,
     });
 
     return JsFlPth;
@@ -460,7 +466,7 @@ function Build (Cfg, Ext = 'js') {
   const CssFls = Pgs
     .reduce(
       (CssFls, Pg) => {
-        if (!Is.Array(Pg.css)) { Log(`page's css is not an array.`, 'warn'); }
+        if (!Is.Array(Pg.css)) { Log('page\'s css is not an array.', 'warn'); }
 
         Pg.css.forEach(Css => {
           if (!CssFls.includes(Css)) { CssFls.push(Css); }
@@ -471,50 +477,50 @@ function Build (Cfg, Ext = 'js') {
       []);
 
   CssFls.forEach(CssFl => {
-      let FlPth = path.resolve(process.env.PWD, CssFl); // file path.
-      let FlInfo = path.parse(FlPth);
+    let FlPth = path.resolve(process.env.PWD, CssFl); // file path.
+    let FlInfo = path.parse(FlPth);
 
-      if (FlPth.substr(-5) === '.scss') {
-        const { css: Css } = sass.compile(FlPth);
-        const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(Css).digest('hex'); // hash.
-        const RE = `${FlInfo.name}\\..+\\.css$`.replace(/\./g, '.');
+    if (FlPth.substr(-5) === '.scss') {
+      const { css: Css } = sass.compile(FlPth);
+      const Hsh = crypto.createHash('shake256', { outputLength: 5 }).update(Css).digest('hex'); // hash.
+      const RE = `${FlInfo.name}\\..+\\.css$`.replace(/\./g, '.');
 
-        FlPth = FlPth.replace('.scss', `.${Hsh}.css`);
-        FlInfo = path.parse(FlPth);
+      FlPth = FlPth.replace('.scss', `.${Hsh}.css`);
+      FlInfo = path.parse(FlPth);
 
-        if (!fs.existsSync(FlPth)) {
-          const OldFls = FilesFind(FlInfo.dir, new RegExp(RE));
+      if (!fs.existsSync(FlPth)) {
+        const OldFls = FilesFind(FlInfo.dir, new RegExp(RE));
 
-          if (OldFls.length > 0) {
-            OldFls.forEach(OldFl => { fs.unlinkSync(OldFl); }); // remove old files.
-          }
-
-          fs.writeFileSync(FlPth, Css);
-          Log(`${FlPth} compiled and saved.`);
+        if (OldFls.length > 0) {
+          OldFls.forEach(OldFl => { fs.unlinkSync(OldFl); }); // remove old files.
         }
 
-        // override original page import SCSS files.
-        Object.values({ ...Cfg.page, ...Cfg.errorPage }).forEach(Pg => {
-          if (!Is.Array(Pg.css)) { return; }
-
-          Pg.css.forEach((Fl, Idx) => {
-            if (Fl.substr(-5) !== '.scss') { return; }
-
-            const NwFlNm = FlInfo.name.substr(0, FlInfo.name.indexOf('.')),
-                  OldFlNm = Fl.substr(Fl.lastIndexOf('/') + 1).replace('.scss', '');
-
-            if(NwFlNm === OldFlNm) { Pg.css[Idx] = FlInfo.base; }
-          });
-        });
+        fs.writeFileSync(FlPth, Css);
+        Log(`${FlPth} compiled and saved.`);
       }
 
-      Cfg.route.push({
-        path: new RegExp(FlInfo.base + '$'),
-        type: 'resource',
-        location: FlInfo.dir,
-        nameOnly: true
+      // override original page import SCSS files.
+      Object.values({ ...Cfg.page, ...Cfg.errorPage }).forEach(Pg => {
+        if (!Is.Array(Pg.css)) { return; }
+
+        Pg.css.forEach((Fl, Idx) => {
+          if (Fl.substr(-5) !== '.scss') { return; }
+
+          const NwFlNm = FlInfo.name.substr(0, FlInfo.name.indexOf('.'));
+          const OldFlNm = Fl.substr(Fl.lastIndexOf('/') + 1).replace('.scss', '');
+
+          if(NwFlNm === OldFlNm) { Pg.css[Idx] = FlInfo.base; }
+        });
       });
+    }
+
+    Cfg.route.push({
+      path: new RegExp(FlInfo.base + '$'),
+      type: 'resource',
+      location: FlInfo.dir,
+      nameOnly: true,
     });
+  });
 
   // ===
 
@@ -547,7 +553,7 @@ function Initialize (Cfg) {
       path: /riot-4-fun-mixin\.js$/,
       type: 'resource',
       location: './node_modules/riot-4-fun/SRC',
-      fileName: 'Mixin.js'
+      fileName: 'Mixin.js',
     },
     ...Cfg.route ];
   SvcCs = Cfg.service.case || Cfg.service || {};
@@ -604,8 +610,9 @@ function Initialize (Cfg) {
   const SvcCsEntrs = Object.entries(SvcCs); // service case entries.
 
   for (let i = 0; i < SvcCsEntrs.length; i++) {
-    const [ Pth, Mthds ] = SvcCsEntrs[i],
-          MthdsEntrs = Object.entries(Mthds);
+    const [ Pth, Mthds ] = SvcCsEntrs[i];
+
+    const MthdsEntrs = Object.entries(Mthds);
 
     for (let j = 0; j < MthdsEntrs.length; j++) {
       const [ Mthd, Service ] = MthdsEntrs[j];
@@ -662,7 +669,7 @@ function Run () {
 export const Http = {
   Build,
   Initialize,
-  Run
+  Run,
 };
 
 export default Http;
