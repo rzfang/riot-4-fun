@@ -344,6 +344,26 @@ function FileRespond (Rqst, Rspns, FlPth, ExprScd = 3600) {
 }
 
 function BodyParse (Rqst, Rspns, Next) {
+  if (Rqst.method === 'POST' && Rqst.headers['content-type'] === 'application/json') {
+    let Bd = '';
+
+    Rqst.on('data', (chunk) => {
+      Bd += chunk.toString(); // Convert Buffer to string
+    });
+
+    Rqst.on('end', () => {
+      try {
+        Rqst.body = JSON.parse(Bd);
+      } catch (error) {
+        console.warn(error);
+      }
+
+      Next();
+    });
+
+    return;
+  }
+
   if (!Rqst.is('urlencoded', 'multipart')) { return Next(); } // don't handle without multipart.
 
   const BsBy = busboy({ headers: Rqst.headers, fileSize: 1024 * 1024 * 10, files: 100 }); // file size: 10mb.
