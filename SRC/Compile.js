@@ -20,34 +20,34 @@ registerPreprocessor(
     return { code: Css, map: null };
   });
 
-function SourceCodeSplit (SrcCd) {
-  if (!SrcCd) { return []; }
+function riotCodeSplit (code) {
+  if (!code) { return []; }
 
-  const Cds = [];
+  const codes = [];
 
-  while (SrcCd.length > 0) {
-    const TgInfo = SrcCd.match(/<([^/<>]+)>\n/); // tag info.
+  while (code.length > 0) {
+    const tagInfo = code.match(/<([^/<>]+)>\n/); // tag info.
 
-    if (!TgInfo || !TgInfo[1]) { break; }
+    if (!tagInfo || !tagInfo[1]) { break; }
 
-    const [ TgNm ] = TgInfo[1].split(' '); // tag name, options.
+    const [ tagNm ] = tagInfo[1].split(' '); // tag name, options.
 
     // ==== handle partial code ====
 
-    const StTg = `<${TgNm}>`; // start tag.
-    const EndTg = `</${TgNm}>`; // end tag.
-    const EndIdx = SrcCd.indexOf(EndTg) + EndTg.length; // end index.
-    const Cd = SrcCd.substring(SrcCd.indexOf(StTg), EndIdx);
+    const startTag = `<${tagNm}>`; // start tag.
+    const endTag = `</${tagNm}>`; // end tag.
+    const endIndex = code.indexOf(endTag) + endTag.length; // end index.
+    const partCode = code.substring(code.indexOf(startTag), endIndex);
 
     // name in Js code will be from tag name with camel case.
-    const Nm = TgNm.replace(/-\w/g, Str => Str.substr(1).toUpperCase());
+    const name = tagNm.replace(/-\w/g, Str => Str.substr(1).toUpperCase());
 
-    Cds.push({ Nm, Cd });
+    codes.push({ name, code: partCode, Nm: name, Cd: partCode }); // To Do: Nm, Cd will be deprecated.
 
-    SrcCd = SrcCd.substr(EndIdx);
+    code = code.substr(endIndex);
   }
 
-  return Cds;
+  return codes;
 }
 
 /*
@@ -132,7 +132,7 @@ function ModulesCompile (FlPth, Then) {
 
           // ==== compile separated component, and combine them after parse. ====
 
-          SourceCodeSplit(SrcCd).map(({ Nm, Cd }) => {
+          riotCodeSplit(SrcCd).map(({ Nm, Cd }) => {
             if (RsltMdls[Nm]) { return ; }
 
             // console.Log('--- 001 ---');
@@ -212,7 +212,7 @@ export function Compile (FlPth, Tp = 'esm', Then) {
 export function Compile2 (FlPth, Extnsn = 'js', MrgImprts = false) {
   FlPth = FilePathAdjust(FlPth);
 
-  const MdlsSrcCds = SourceCodeSplit(fs.readFileSync(FlPth, 'utf8')); // modules source codes.
+  const MdlsSrcCds = riotCodeSplit(fs.readFileSync(FlPth, 'utf8')); // modules source codes.
   const NwExtnsn = `.riot.${Extnsn}`; // new extension.
   const RsltImprts = []; // result import modules.
   let RsltMdlCds = []; // result modules code.

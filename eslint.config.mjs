@@ -5,7 +5,10 @@ import markdown from '@eslint/markdown';
 import stylistic from '@stylistic/eslint-plugin'
 import { defineConfig } from 'eslint/config';
 
+import r4fConfig from './eslint/config.mjs';
+
 export default defineConfig([
+  r4fConfig,
   {
     files: [ '**/*.{js,mjs,cjs}' ],
     languageOptions: {
@@ -39,7 +42,7 @@ export default defineConfig([
       '@stylistic/quote-props': [ 'error', 'as-needed' ],
       '@stylistic/quotes': [ 'error', 'single', { avoidEscape: true, allowTemplateLiterals: 'avoidEscape' } ],
       'no-console': [ 'warn' ],
-      'no-unused-vars': [ 'warn' ],
+      'no-unused-vars': [ 'warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' } ],
       'prefer-const': [ 'error' ],
     },
   },

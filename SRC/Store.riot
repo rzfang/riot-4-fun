@@ -1,30 +1,34 @@
 <store>
   <script>
     export default {
-      onBeforeMount (props, state) {
+      onBeforeMount (props) {
         const {
-          name = '', //
-          store: Sto,
-          listener: Lstnr,
-          initialized: IsInit = false
+          initialized = false,
+          listener,
+          name = '',
+          store,
         } = props;
 
-        let Nm = name || Sto;
+        const finalName = name || store;
 
-        if (Sto) { console.warn(`in store ${Sto} the prop "store" is deprecated, please use prop "name".`); }
+        if (store) {
+          console.warn(`in store ${store} the prop "store" is deprecated, please use prop "name".`);
+        }
 
-        // if (this.StoreGet(Sto)) { return; }
+        // if (this.StoreGet(store)) { return; }
 
-        if (Lstnr) {
-          this.StoreListen(Nm, Lstnr, IsInit);
+        if (listener) {
+          this.StoreListen(finalName, listener, initialized);
         }
       },
 
-      onBeforeUnmount (props, state) {
-        const { name: Nm, store: Sto, listener: Lstnr } = props; // name, store name, listener.
+      onBeforeUnmount (props) {
+        const { name, store, listener } = props; // name, store name, listener.
 
-        this.StoreUnleash(Sto, Lstnr);
-      }
+        const finalName = name || store;
+
+        this.StoreUnleash(finalName, listener);
+      },
     }
   </script>
 </store>
