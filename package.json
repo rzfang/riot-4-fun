@@ -1,6 +1,6 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "type": "module",
@@ -13,7 +13,7 @@
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "files": [ "/DST", "/SRC", "/eslint", "/index.js" ],
+  "files": [ "/DST", "/SRC", "/eslint", "helper.mjs", "/index.js" ],
   "dependencies": {
     "@riotjs/compiler": "^9.0.0",
     "@riotjs/hydrate": "^9.0.0",
