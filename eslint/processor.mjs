@@ -22,10 +22,6 @@ const processor = {
         tailLines;
 
       parsedText = parsedText.replace(code, newCode);
-
-      return headLines +
-        jsCode.replace('export default', `export const ${name} =`) +
-        tailLines;
     });
 
     parsedText = parsedText.replace(new RegExp('\n' + prefixSpaces, 'g'), '\n');

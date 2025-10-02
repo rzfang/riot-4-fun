@@ -11,7 +11,7 @@ function riotCodeSplit (code) {
 
     const [ tagName ] = tagInfo[1].split(' '); // tag name, options.
 
-    // ==== handle partial code ====
+    // === handle partial code. ===
 
     const startTag = `<${tagName}`; // start tag.
     const endTag = `</${tagName}>`; // end tag.
@@ -21,9 +21,17 @@ function riotCodeSplit (code) {
     // name in Js code will be from tag name with camel case.
     const name = tagName.replace(/-\w/g, Str => Str.substr(1).toUpperCase());
 
+    // === handle partial Js code. ===
+
+    const jsCode = (partCode.indexOf('<script>') > -1) ?
+      partCode.substring(partCode.indexOf('<script>') + 8, partCode.indexOf('</script>')) :
+      'export default {};';
+
+    // ===
+
     codes.push({
       code: partCode,
-      jsCode: partCode.substring(partCode.indexOf('<script>') + 8, partCode.indexOf('</script>')),
+      jsCode,
       name,
     });
 

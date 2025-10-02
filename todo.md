@@ -5,3 +5,4 @@
 - refactor, decouple 'riot-4-fun-mixin.js' in Mixin.js StorePrint and Http.js Initialize.
 - refactor, Mixin.js StoreListen, StoreUnleash are only needed in Store.riot.
 - update, there is no way call Mixin, but Plugin.
+- Store initial store.
