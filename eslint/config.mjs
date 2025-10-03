@@ -13,7 +13,22 @@ const config = {
   },
   rules: {
     '@stylistic/array-bracket-spacing': [ 'error', 'always' ],
-    '@stylistic/comma-dangle': [ 'error', 'always-multiline' ],
+    // '@stylistic/comma-dangle': [ 'error', 'always-multiline' ],
+    '@stylistic/comma-dangle': [
+      'error',
+      {
+        arrays: 'always-multiline',
+        // dynamicImports: 'never',
+        // enums: 'never',
+        exports: 'always-multiline',
+        functions: 'never',
+        // generics: 'never',
+        // importAttributes: 'never',
+        imports: 'always-multiline',
+        objects: 'always-multiline',
+        // tuples: 'never',
+      },
+    ],
     '@stylistic/dot-location': [ 'error', 'property' ],
     '@stylistic/indent': [ 'error', 2 ],
     '@stylistic/max-len': [ 'error', { code: 120, ignoreComments: true } ],
