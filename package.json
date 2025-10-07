@@ -1,10 +1,15 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.13",
+  "version": "0.2.14",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "type": "module",
-  "keywords": [ "riot", "js", "http", "server" ],
+  "keywords": [
+    "riot",
+    "js",
+    "http",
+    "server"
+  ],
   "author": "RZ Fang",
   "license": "ISC",
   "scripts": {
@@ -13,13 +18,22 @@
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "files": [ "/DST", "/SRC", "/eslint", "helper.mjs", "/index.js" ],
+  "files": [
+    "/DST",
+    "/SRC",
+    "/eslint",
+    "helper.mjs",
+    "/index.js"
+  ],
   "dependencies": {
+    "@jridgewell/source-map": "^0.3.11",
     "@riotjs/compiler": "^9.0.0",
     "@riotjs/hydrate": "^9.0.0",
     "@riotjs/ssr": "^9.0.0",
+    "acorn": "^8.15.0",
     "async": "^3.2.4",
     "busboy": "^1.6.0",
+    "concat-with-sourcemaps": "^1.1.0",
     "cookie-parser": "^1.4.6",
     "esbuild": "^0.25.0",
     "express": "^4.18.2",
@@ -37,5 +51,8 @@
     "globals": "^16.3.0",
     "pre-commit": "^1.2.2"
   },
-  "pre-commit": [ "build", "lint" ]
+  "pre-commit": [
+    "build",
+    "lint"
+  ]
 }
