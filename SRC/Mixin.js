@@ -223,9 +223,9 @@ export class Mixin {
         <script type='module'>
           import Riot4FunMixin from '/riot-4-fun-mixin.js';
 
-          window.R4FMI = new Riot4FunMixin();
+          window.r4fMixinInstance = new Riot4FunMixin();
 
-          riot.install(Cmpnt => { window.R4FMI.Bind(Cmpnt); });
+          riot.install(Cmpnt => { window.r4fMixinInstance.Bind(Cmpnt); });
         </script>
       `;
     }
@@ -235,10 +235,10 @@ export class Mixin {
         <script type='module'>
           import Riot4FunMixin from '/riot-4-fun-mixin.js';
 
-          window.R4FMI = new Riot4FunMixin();
+          window.r4fMixinInstance = new Riot4FunMixin();
 
-          window.R4FMI.StoreInject(document.getElementById('riot-store').textContent);
-          riot.install(Cmpnt => { window.R4FMI.Bind(Cmpnt); });
+          window.r4fMixinInstance.StoreInject(document.getElementById('riot-store').textContent);
+          riot.install(Cmpnt => { window.r4fMixinInstance.Bind(Cmpnt); });
         </script>
       `;
   }

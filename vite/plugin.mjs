@@ -8,6 +8,10 @@ function plugin () {
     // handleHotUpdate(context) {
     //   // 可以在這裡加上自訂 HMR 行為
     // },
+    load (id, _options) {
+      // non undefined, null to tell vite calls transform function.
+      return id.endsWith('.riot') ? '' : null;
+    },
     transform (sourceCode, id, _options) {
       if (!id.endsWith('.riot')) {
         return null;

@@ -1,5 +1,7 @@
 <store>
   <script>
+    import log from './Log.js';
+
     export default {
       onBeforeMount (props) {
         const {
@@ -12,7 +14,7 @@
         const finalName = name || store;
 
         if (store) {
-          console.warn(`in store ${store} the prop "store" is deprecated, please use prop "name".`);
+          log(`in store ${store} the prop "store" is deprecated, please use prop "name".`, 'warn');
         }
 
         // if (this.StoreGet(store)) { return; }

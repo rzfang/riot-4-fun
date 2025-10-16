@@ -4,6 +4,7 @@ import fs from 'fs';
 import { compile } from '@riotjs/compiler';
 import { SourceMapConsumer } from '@jridgewell/source-map';
 
+import log from '../SRC/Log.js';
 import { riotCodeSplit } from '../helper.mjs';
 
 function getCodeBlock (code, line, range = 3, lineWidth = 80) {
@@ -90,7 +91,7 @@ function r4fCompile (filePath, sourceCode  = '') {
       sourceCodeLine
     );
 
-    console.error(errorMessage);
+    log(errorMessage, 'error');
 
     error = new Error(errorMessage);
   }

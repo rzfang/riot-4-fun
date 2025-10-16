@@ -2,13 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import { build } from 'vite';
 
+import log from '../SRC/Log.js';
+
 async function r4fBuild (_option) {
   const processEntry = process.cwd();
 
   const buildDirectory = path.resolve(processEntry, '.r4f');
 
   if (!fs.existsSync(buildDirectory)) {
-    console.log(`${buildDirectory} does not exist. Create it.`);
+    log(`${buildDirectory} does not exist. Create it.`);
     fs.mkdirSync(buildDirectory);
   }
 
