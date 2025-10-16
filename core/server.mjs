@@ -9,7 +9,7 @@ import path from 'path';
 import url from 'url';
 import { createServer } from 'vite';
 
-import is from '../SRC/is.js';
+import is from '../SRC/Is.js';
 import log from '../SRC/Log.js';
 import mixin from '../SRC/Mixin.js';
 
@@ -457,11 +457,10 @@ async function run (config) {
       location = '',
       nameOnly = false,
       path: routePath,
-      type,
     } = one;
 
-    if (!routePath || !type) {
-      log('the route case misses path or type.', 'error');
+    if (!routePath) {
+      log('the route case misses path.', 'error');
 
       return;
     }
