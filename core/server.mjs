@@ -241,7 +241,7 @@ function getHeader (r4fmi, pageConfig) {
   @ HTTP response object.
   @ path.
   @ page config object. */
-function pageRespond (request, response, path, pageConfig, error500Config = null) {
+function pageRespond (request, response, vite, path, pageConfig, error500Config = null) {
   const { body } = pageConfig;
 
   if (!body) {
@@ -308,16 +308,9 @@ function pageRespond (request, response, path, pageConfig, error500Config = null
         const { body, head, script } = result;
 
         headString += head + `
-          <script type='importmap'>
-            {
-              "imports": {
-                "riot": "/riot.min.js"
-              }
-            }
-          </script>
           <script type="module">
-            import * as riot from '/riot.min.js';
-            import hydrate from '/hydrate.min.js';
+            import * as riot from 'riot';
+            import hydrate from 'riot-4-fun/DST/hydrate.min.js';
 
             window.riot = riot;
             window.hydrate = hydrate;
@@ -327,16 +320,21 @@ function pageRespond (request, response, path, pageConfig, error500Config = null
         scriptString += script;
       }
 
-      response.writeHead(response.statusCode, { 'Content-Type': 'text/html' });
-      response.write(
-        '<!DOCTYPE HTML>\n<html>\n<head>\n<meta charset=\'utf-8\'/>\n' +
-        headString +
-        '</head>\n<body>\n' +
-        bodyString +
-        scriptString +
-        '</body>\n</html>\n'
-      );
-      response.end();
+      vite
+        .transformIndexHtml(
+          path,
+          '<!DOCTYPE HTML>\n<html>\n<head>\n<meta charset=\'utf-8\'/>\n' +
+          headString +
+          '</head>\n<body>\n' +
+          bodyString +
+          scriptString +
+          '</body>\n</html>\n'
+        )
+        .then(html => {
+          response.writeHead(response.statusCode, { 'Content-Type': 'text/html' });
+          response.write(html);
+          response.end();
+        });
     }
   );
 }
@@ -407,7 +405,7 @@ function bodyParse (request, response, next, uploadFilePath) {
 
 async function run (config) {
   const app = express();
-  const { errorPage, page, port, service, uploadFilePath } = config;
+  const { errorPage, page, port, route, service, uploadFilePath } = config;
 
   log('initialize...');
 
@@ -425,29 +423,6 @@ async function run (config) {
   });
 
   app.use(vite.middlewares);
-
-  // === set up all config variables. ===
-
-  const route = [
-    // append necessary files.
-    {
-      path: /hydrate\.min.js$/,
-      type: 'resource',
-      location: './node_modules/riot-4-fun/DST',
-    },
-    {
-      path: /riot\.min\.js$/,
-      type: 'resource',
-      location: './node_modules/riot-4-fun/DST',
-    },
-    {
-      path: /riot-4-fun-mixin\.js$/,
-      type: 'resource',
-      location: './node_modules/riot-4-fun/SRC',
-      fileName: 'Mixin.js',
-    },
-    ...config.route,
-  ];
 
   // ==== resource route. ====
 
@@ -516,11 +491,7 @@ async function run (config) {
       body.module = pageModuleMap[path];
     }
 
-    app.get(path, async (request, response) => {
-      pageRespond(request, response, path, pageConfig);
-      // response.write('hello r4f');
-      // response.end();
-    });
+    app.get(path, (request, response) => pageRespond(request, response, vite, path, pageConfig));
   });
 
   // ==== 404 route. ====

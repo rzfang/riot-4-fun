@@ -221,11 +221,11 @@ export class Mixin {
     if (Stos.length === 0 || (Stos === 1 && Stos[0][1] === 'PAGE')) {
       return `
         <script type='module'>
-          import Riot4FunMixin from '/riot-4-fun-mixin.js';
+          import Riot4FunMixin from 'riot-4-fun/SRC/Mixin.js';
 
           window.r4fMixinInstance = new Riot4FunMixin();
 
-          riot.install(Cmpnt => { window.r4fMixinInstance.Bind(Cmpnt); });
+          window.riot.install(component => window.r4fMixinInstance.Bind(component));
         </script>
       `;
     }
@@ -233,12 +233,12 @@ export class Mixin {
     return '<script id=\'riot-store\' type=\'application/json\'>' + JSON.stringify(this.Srvc.Sto) + '</script>\n' +
       `
         <script type='module'>
-          import Riot4FunMixin from '/riot-4-fun-mixin.js';
+          import Riot4FunMixin from 'riot-4-fun/SRC/Mixin.js';
 
           window.r4fMixinInstance = new Riot4FunMixin();
 
           window.r4fMixinInstance.StoreInject(document.getElementById('riot-store').textContent);
-          riot.install(Cmpnt => { window.r4fMixinInstance.Bind(Cmpnt); });
+          window.riot.install(component => window.r4fMixinInstance.Bind(component));
         </script>
       `;
   }
