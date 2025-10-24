@@ -106,7 +106,7 @@ function AJAX (Info) {
   return XHR;
 }
 
-export class Mixin {
+export class Plugin {
   constructor (Rqst = null) {
     this.Rqst = Rqst;
     this.Srvc = { Rprt: {}, Sto: {}}; // service, report, data store.
@@ -221,11 +221,11 @@ export class Mixin {
     if (Stos.length === 0 || (Stos === 1 && Stos[0][1] === 'PAGE')) {
       return `
         <script type='module'>
-          import Riot4FunMixin from 'riot-4-fun/SRC/Mixin.js';
+          import RiotPlugin from 'riot-4-fun/core/plugin.mjs';
 
-          window.r4fMixinInstance = new Riot4FunMixin();
+          window.riotPlugin = new RiotPlugin();
 
-          window.riot.install(component => window.r4fMixinInstance.Bind(component));
+          window.riot.install(component => window.riotPlugin.Bind(component));
         </script>
       `;
     }
@@ -233,12 +233,12 @@ export class Mixin {
     return '<script id=\'riot-store\' type=\'application/json\'>' + JSON.stringify(this.Srvc.Sto) + '</script>\n' +
       `
         <script type='module'>
-          import Riot4FunMixin from 'riot-4-fun/SRC/Mixin.js';
+          import RiotPlugin from 'riot-4-fun/core/plugin.mjs';
 
-          window.r4fMixinInstance = new Riot4FunMixin();
+          window.riotPlugin = new RiotPlugin();
 
-          window.r4fMixinInstance.StoreInject(document.getElementById('riot-store').textContent);
-          window.riot.install(component => window.r4fMixinInstance.Bind(component));
+          window.riotPlugin.StoreInject(document.getElementById('riot-store').textContent);
+          window.riot.install(component => window.riotPlugin.Bind(component));
         </script>
       `;
   }
@@ -316,4 +316,4 @@ export class Mixin {
   }
 }
 
-export default Mixin;
+export default Plugin;

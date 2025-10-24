@@ -9,9 +9,9 @@ import path from 'path';
 import url from 'url';
 import { createServer } from 'vite';
 
-import is from '../SRC/Is.js';
-import log from '../SRC/Log.js';
-import mixin from '../SRC/Mixin.js';
+import is from 'rzjs/is.mjs';
+import log from 'rzjs/log.mjs';
+import RiotPlugin from './plugin.mjs';
 
 async function loadR4fPageModules (vite, pageConfigMap) {
   const modules = {};
@@ -190,7 +190,7 @@ function riotRender (request, body, next) {
         <script type='module'>
           import ${moduleName} from '/${component}';
 
-          const ${moduleName}Shell = hydrate(${moduleName});
+          const ${moduleName}Shell = window.hydrate(${moduleName});
 
           ${moduleName}Shell(document.querySelector('${name}'));
         </script>
@@ -201,11 +201,11 @@ function riotRender (request, body, next) {
 }
 
 /*
-  @ riot-4-fun mixin instance.
+  @ riot plugin instance.
   @ page config.
   < HTML header inner HTML string. */
-function getHeader (r4fmi, pageConfig) {
-  const r4fmiPageStore = r4fmi.StoreGet('PAGE') || {}; // riot-4-fun mixin instance page store.
+function getHeader (riotPlugin, pageConfig) {
+  const pageStore = riotPlugin.StoreGet('PAGE') || {}; // riot plugin instance page store.
 
   const {
     author,
@@ -214,7 +214,7 @@ function getHeader (r4fmi, pageConfig) {
     feed,
     keywords,
     title,
-  } = { ...pageConfig, ...r4fmiPageStore };
+  } = { ...pageConfig, ...pageStore };
 
   let headString = '';
 
@@ -254,9 +254,9 @@ function pageRespond (request, response, vite, path, pageConfig, error500Config 
     return;
   }
 
-  request.r4fMixinInstance = new mixin(request); // put riot-4-fun mixin instance into request object.
+  request.riotPlugin = new RiotPlugin(request); // put riot plugin instance into request object.
 
-  riot.install(component => { request.r4fMixinInstance.Bind(component); }); // bind mixin functions to each component on server side rendering.
+  riot.install(component => { request.riotPlugin.Bind(component); }); // bind RiotPlugin functions to each component on server side rendering.
 
   return riotRender(
     request,
@@ -264,8 +264,8 @@ function pageRespond (request, response, vite, path, pageConfig, error500Config 
     (error, result) => {
       const { css, js } = pageConfig;
       let bodyString = '';
-      let headString = getHeader(request.r4fMixinInstance, pageConfig);
-      let scriptString = request.r4fMixinInstance.StorePrint();
+      let headString = getHeader(request.riotPlugin, pageConfig);
+      let scriptString = request.riotPlugin.StorePrint();
 
       if (!is.Array(css)) {
         log(path + '\npage config css is not an array.', 'warn');

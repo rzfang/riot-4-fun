@@ -4,7 +4,7 @@ import fs from 'fs';
 import { compile } from '@riotjs/compiler';
 import { SourceMapConsumer } from '@jridgewell/source-map';
 
-import log from '../SRC/Log.js';
+import log from 'rzjs/log.mjs';
 import { riotCodeSplit } from '../helper.mjs';
 
 function getCodeBlock (code, line, range = 3, lineWidth = 80) {

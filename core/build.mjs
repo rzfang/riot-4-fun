@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { build } from 'vite';
 
-import log from '../SRC/Log.js';
+import log from 'rzjs/log.mjs';
 
 async function r4fBuild (_option) {
   const processEntry = process.cwd();

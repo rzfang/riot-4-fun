@@ -1,4 +1,3 @@
-// Note: same as riot-4-fun Compile.js.
 function riotCodeSplit (code) {
   if (!code) { return []; }
 
