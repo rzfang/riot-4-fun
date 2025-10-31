@@ -44,7 +44,6 @@
     "helmet": "^7.0.0",
     "riot": "^9.0.0",
     "rzjs": "github:rzfang/Js",
-    "sass": "^1.89.2",
     "vite": "^7.1.11"
   },
   "devDependencies": {
