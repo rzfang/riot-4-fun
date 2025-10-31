@@ -1,6 +1,6 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.15",
+  "version": "0.2.16",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "bin": {
@@ -27,7 +27,8 @@
     "/eslint",
     "/helper.mjs",
     "/index.js",
-    "/vite"
+    "/vite",
+    "/vite.config.mjs"
   ],
   "dependencies": {
     "@jridgewell/source-map": "^0.3.11",
