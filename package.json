@@ -1,6 +1,6 @@
 {
   "name": "riot-4-fun",
-  "version": "0.2.14",
+  "version": "0.2.15",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "bin": {
