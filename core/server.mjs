@@ -412,6 +412,7 @@ async function run (config) {
   app.use(cookieParser());
   app.use(helmet({ contentSecurityPolicy: false })); // header handle for security.
 
+  // To Do: only dev.
   // === vite middleware hooks express app. ===
 
   const r4fRootPath = path.resolve(process.cwd(), 'node_modules/riot-4-fun');
@@ -491,7 +492,19 @@ async function run (config) {
       body.module = pageModuleMap[path];
     }
 
-    app.get(path, (request, response) => pageRespond(request, response, vite, path, pageConfig));
+    app.get(
+      path,
+      (request, response, next) => {
+        const accept = request.headers.accept || '';
+
+        // asset | sourcemap | vite client.
+        if (!accept.includes('text/html')) {
+          return next();
+        }
+
+        pageRespond(request, response, vite, path, pageConfig);
+      }
+    );
   });
 
   // ==== 404 route. ====
