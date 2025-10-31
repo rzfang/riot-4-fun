@@ -61,7 +61,7 @@ For easier handling datas as context/store acrossing components, here provide a 
   Let's try "store" - {count}.
   <store name='SAMPLE_STORE' listener={SampleStoreListen}/>
   <script>
-    import store from 'riot-4-fun/SRC/Store.riot';
+    import store from 'riot-4-fun/core/store.riot';
 
     export default {
       components: { store },

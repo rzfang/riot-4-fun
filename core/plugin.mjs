@@ -144,7 +144,7 @@ export class Plugin {
     return this.Srvc.Sto[Ky] || null;
   }
 
-  /* currently, this is only used by Store.riot.
+  /* currently, this is only used by store.riot.
     @ name to locate the store.
     @ Then(Sto, PrmsToTsk) = then, a function when the task done.
       @ the store object.
@@ -163,7 +163,7 @@ export class Plugin {
     if (RnOnc && this.Srvc.Sto[StoNm]) { Then(this.Srvc.Sto[StoNm], null); } // if the task store is ready, call once first.
   }
 
-  /* currently, this is only used by Store.riot.
+  /* currently, this is only used by store.riot.
     @ store name.
     @ target report. */
   StoreUnleash (StoNm, TgtRprt) {

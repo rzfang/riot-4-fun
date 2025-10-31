@@ -16,7 +16,7 @@
   "author": "RZ Fang",
   "license": "ISC",
   "scripts": {
-    "build": "riot ./SRC/Store.riot --output ./DST/store.riot.js",
+    "build": "echo 'not yet...'",
     "build:riot": "esbuild node_modules/riot/esm/riot.js --bundle --format=esm --minify --outfile=DST/riot.min.js && esbuild node_modules/@riotjs/hydrate/index.js --format=esm --minify --outfile=DST/hydrate.min.js",
     "lint": "eslint",
     "test": "echo \"Error: no test specified\" && exit 1"
