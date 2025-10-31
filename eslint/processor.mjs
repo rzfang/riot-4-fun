@@ -5,7 +5,7 @@ const filePrefixSpacesMap = {};
 const processor = {
   supportsAutofix: true,
   preprocess (text, fileName) {
-    const [ _, prefixSpaces ] = text.match(/<script[^>]*>\n( *)/);
+    const [ _, prefixSpaces = '' ] = text.match(/<script[^>]*>\n( *)/) || [];
     const parts = riotCodeSplit(text);
 
     filePrefixSpacesMap[fileName] = prefixSpaces; // store the prefix spaces text of each line.
