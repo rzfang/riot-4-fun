@@ -310,7 +310,7 @@ function pageRespond (request, response, vite, path, pageConfig, error500Config 
         headString += head + `
           <script type="module">
             import * as riot from 'riot';
-            import hydrate from 'riot-4-fun/DST/hydrate.min.js';
+            import hydrate from 'riot-4-fun/dist/hydrate.min.js';
 
             window.riot = riot;
             window.hydrate = hydrate;

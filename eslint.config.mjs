@@ -31,7 +31,7 @@ export default defineConfig([
   {
     extends: [ 'js/recommended' ],
     files: [ '**/*.{js,mjs,cjs}' ],
-    ignores: [ 'DST/*' ],
+    ignores: [ 'dist/*' ],
     plugins: { '@stylistic': stylistic, js },
     rules: {
       '@stylistic/array-bracket-spacing': [ 'error', 'always' ],
