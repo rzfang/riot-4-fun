@@ -7,4 +7,9 @@ export default defineConfig({
     emptyOutDir: true, // clean even not in root.
     outDir: './.r4f',
   },
+  server: { // To Do: temporary ignore vite proxy error hint.
+    hmr: {
+      overlay: false,
+    },
+  },
 });
