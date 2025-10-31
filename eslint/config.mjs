@@ -1,12 +1,13 @@
 import globals from 'globals';
+import html from 'eslint-plugin-html';
 import js from '@eslint/js';
 import processor from './processor.mjs';
-import stylistic from '@stylistic/eslint-plugin'
+import stylistic from '@stylistic/eslint-plugin';
 
 const config = {
   extends: [ 'js/recommended' ],
   files: [ '**/*.riot' ],
-  plugins: { '@stylistic': stylistic, js },
+  plugins: { '@stylistic': stylistic, html, js },
   processor,
   languageOptions: {
     globals: { ...globals.browser, ...globals.node },
