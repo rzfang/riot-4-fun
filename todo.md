@@ -1,8 +1,6 @@
-- retire Store.riot props `store` rename to `name` warning.
-- retire Http.js `service.case` rename to `service` warning.
-- move out libraries which has been also in rzjs.
+- retire store.riot props `store` rename to `name` warning.
+- retire server.mjs `service.case` rename to `service` warning.
 - refactor, make Http Build, Initialize and Run functions independent from each other.
 - refactor, plugin.mjs StoreListen, StoreUnleash are only needed in Store.riot.
-- update, there is no way call Mixin, but Plugin.
 - Store initial store.
 - refactor, naming to be camel case.

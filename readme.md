@@ -11,6 +11,7 @@ Everything recalls a simple concept - easy using and fun for developer.
 * [node.js](https://nodejs.org/en/) and [npm](https://www.npmjs.com/)
 * [Riot](https://riot.js.org/)
 * [esbuild](https://esbuild.github.io/)
+* [vite](https://vite.dev/)
 
 ## Features
 * [Multiple components in one single file.](#multiple-components-in-one-single-file)
@@ -37,20 +38,25 @@ For eaiser code arrangement, we want to tear the whole component as several part
   </script>
 </part2>
 
+<part-three>
+  This is custom component 3.
+</part-three>
+
 <final>
   <part1/>
   <part2/>
+  <part-three/>
   This is the component which will be exported as the default.
 
   <script>
     export default {
-      components: { part1, part2 }
+      components: { part1, part2, partThree },
     };
   </script>
 </final>
 ```
 
-**Be awared that the last compnent in the file will be the real export default component after compiling.**
+**Be awared that all components in the file are exported, but only the last compnent in the file will be exported as the default.**
 
 ### Support Store/Context.
 For easier handling datas as context/store acrossing components, here provide a simple `<store>` component which bases on riot plugin.
@@ -58,7 +64,7 @@ For easier handling datas as context/store acrossing components, here provide a 
 ```html
 <component>
   Let's try "store" - {count}.
-  <store name='SAMPLE_STORE' listener={SampleStoreListen}/>
+  <store name='SAMPLE_STORE' listener={sampleStoreListen}/>
   <script>
     import store from 'riot-4-fun/core/store.riot';
 
@@ -67,11 +73,11 @@ For easier handling datas as context/store acrossing components, here provide a 
       state: {
         count: 0
       },
-      SampleStoreListen (store, params) {
+      sampleStoreListen (store, params) {
         const { count } = store;
 
         this.update({ count });
-      }
+      },
     };
   </script>
 </component>
@@ -81,11 +87,11 @@ For easier handling datas as context/store acrossing components, here provide a 
 riot-4-fun needs only one Js file to configure route, resource, page, and everything.
 
 ```js
-import Http from 'riot-4-fun/SRC/Http.js';
 import homePage from './src/lib/homePage.js';
 import signIn from './src/lib/signin.js';
+import something from './src/lib/something.mjs';
 
-const R4F = { // riot-4-fun config.
+export default { // riot-4-fun config.
   port: 3000,
   page: {
     '/home': {
@@ -98,42 +104,51 @@ const R4F = { // riot-4-fun config.
       css: [ '/style.css' ],
       js: [ '/library.js' ],
       body: {
-        type: 'riot',
         component: './src/components/home.riot',
         Initialize: homePage,
-      }
+      },
     },
     '/page1': {
       body: {
-        type: 'riot',
         component: './src/components/page1.riot'
-      }
-    }
+      },
+    },
   },
   errorPage: {
     '404': {
-      ...DftPgRt,
       title: '404',
-      body: { type: 'riot', component: './src/components/error404.riot' }
+      body: { component: './src/components/error404.riot' },
     },
     '500': {
       title: '500',
-      body: { type: 'riot', component: './SRC/components/error500.riot' }
-    }
+      body: { component: './SRC/components/error500.riot' },
+    },
   },
   service: {
     '/signin': {
-      post: signIn
-    }
+      post: signIn,
+    },
+    '/something/list': {
+      get: something.getList,
+      post: something.addOne,
+    },
   },
   route: [
     {
       path: 'favicon.ico',
-      type: 'resource',
-      location: './public'
-    }
-  ]
+      location: './public',
+    },
+    // http://localhost:3000/somewhere/image/example.jpg > ./cache/example.jpg
+    {
+      path: /image\/.+\.jpg/,
+      location: './cache',
+      nameOnly: true,
+    },
+    // http://localhost:3000/somewhere/image/example.png > ./cache/somewhere/image/example.png
+    {
+      path: /image\/.+\.png/,
+      location: './cache',
+    },
+  ],
 };
-
-Http.Build(R4F, 'mjs').Initialize(R4F).Run();
 ```
