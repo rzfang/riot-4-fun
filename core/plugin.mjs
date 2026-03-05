@@ -106,7 +106,7 @@ function AJAX (Info) {
   return XHR;
 }
 
-export class Mixin {
+export class Plugin {
   constructor (Rqst = null) {
     this.Rqst = Rqst;
     this.Srvc = { Rprt: {}, Sto: {}}; // service, report, data store.
@@ -144,7 +144,7 @@ export class Mixin {
     return this.Srvc.Sto[Ky] || null;
   }
 
-  /* currently, this is only used by Store.riot.
+  /* currently, this is only used by store.riot.
     @ name to locate the store.
     @ Then(Sto, PrmsToTsk) = then, a function when the task done.
       @ the store object.
@@ -163,7 +163,7 @@ export class Mixin {
     if (RnOnc && this.Srvc.Sto[StoNm]) { Then(this.Srvc.Sto[StoNm], null); } // if the task store is ready, call once first.
   }
 
-  /* currently, this is only used by Store.riot.
+  /* currently, this is only used by store.riot.
     @ store name.
     @ target report. */
   StoreUnleash (StoNm, TgtRprt) {
@@ -219,28 +219,15 @@ export class Mixin {
 
     // no stores, or only PAGE store.
     if (Stos.length === 0 || (Stos === 1 && Stos[0][1] === 'PAGE')) {
-      return `
-        <script type='module'>
-          import Riot4FunMixin from '/riot-4-fun-mixin.js';
-
-          window.R4FMI = new Riot4FunMixin();
-
-          riot.install(Cmpnt => { window.R4FMI.Bind(Cmpnt); });
-        </script>
-      `;
+      return '';
     }
 
-    return '<script id=\'riot-store\' type=\'application/json\'>' + JSON.stringify(this.Srvc.Sto) + '</script>\n' +
-      `
-        <script type='module'>
-          import Riot4FunMixin from '/riot-4-fun-mixin.js';
-
-          window.R4FMI = new Riot4FunMixin();
-
-          window.R4FMI.StoreInject(document.getElementById('riot-store').textContent);
-          riot.install(Cmpnt => { window.R4FMI.Bind(Cmpnt); });
-        </script>
-      `;
+    return `
+      <script id='riot-4-fun-store' type='application/json'>${JSON.stringify(this.Srvc.Sto)}</script>
+      <script type='module'>
+        window.riotPlugin.StoreInject(document.getElementById('riot-4-fun-store').textContent);
+      </script>
+    `;
   }
 
   /* a service which also take cover Store manage.
@@ -316,4 +303,4 @@ export class Mixin {
   }
 }
 
-export default Mixin;
+export default Plugin;
