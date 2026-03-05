@@ -219,28 +219,15 @@ export class Plugin {
 
     // no stores, or only PAGE store.
     if (Stos.length === 0 || (Stos === 1 && Stos[0][1] === 'PAGE')) {
-      return `
-        <script type='module'>
-          import RiotPlugin from 'riot-4-fun/core/plugin.mjs';
-
-          window.riotPlugin = new RiotPlugin();
-
-          window.riot.install(component => window.riotPlugin.Bind(component));
-        </script>
-      `;
+      return '';
     }
 
-    return '<script id=\'riot-store\' type=\'application/json\'>' + JSON.stringify(this.Srvc.Sto) + '</script>\n' +
-      `
-        <script type='module'>
-          import RiotPlugin from 'riot-4-fun/core/plugin.mjs';
-
-          window.riotPlugin = new RiotPlugin();
-
-          window.riotPlugin.StoreInject(document.getElementById('riot-store').textContent);
-          window.riot.install(component => window.riotPlugin.Bind(component));
-        </script>
-      `;
+    return `
+      <script id='riot-4-fun-store' type='application/json'>${JSON.stringify(this.Srvc.Sto)}</script>
+      <script type='module'>
+        window.riotPlugin.StoreInject(document.getElementById('riot-4-fun-store').textContent);
+      </script>
+    `;
   }
 
   /* a service which also take cover Store manage.

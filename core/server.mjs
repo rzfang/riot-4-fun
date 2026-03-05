@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
-import path from 'path';
+import pathLib from 'path';
 import url from 'url';
 import { createServer } from 'vite';
 
@@ -26,10 +26,8 @@ async function loadR4fPageModules (vite, pageConfigMap) {
       );
     }
 
-    const filePath = path.resolve(process.cwd(), body.component);
+    const filePath = pathLib.resolve(process.cwd(), body.component);
 
-    // // const { default: moduleInstance } = await import(path.resolve(process.cwd(), body.component));
-    // const { default: moduleInstance } = await import(path.resolve(process.cwd(), body.component));
     const { default: moduleInstance } = await vite.ssrLoadModule(filePath);
 
     modules[routePath] = moduleInstance;
@@ -64,7 +62,7 @@ function fileRespond (request, response, filePath, expireSeconds = 3600) {
   fs.stat(
     filePath,
     (error, stat) => {
-      const mimeType = mimeTypes[path.extname(filePath)] || 'text/plain';
+      const mimeType = mimeTypes[pathLib.extname(filePath)] || 'text/plain';
 
       if (error) {
         response.writeHead(
@@ -170,34 +168,31 @@ function serviceRespond (request, response, service) {
 function riotRender (request, body, next) {
   const { component, initialize, module: bodyModule } = body;
 
-  const { name } = path.parse(component);
+  const { name } = pathLib.parse(component);
 
-  const moduleName = name.replace(/-\w/g, one => one.slice(1).toUpperCase());
+  function goNext (error, data) {
+    if (error < 0 || !bodyModule) {
+      return next(
+        error,
+        {
+          body: `can not render '${name}'.`,
+          head: '',
+        });
+    }
 
-  initialize(
-    request,
-    url.parse(request.url),
-    (error, data) => {
-      if (error < 0) {
-        return next(error, `<!-- can not render '${name}' component. -->`);
-      }
+    const { html, css } = ssr.fragments(name, bodyModule, data);
 
-      const { html, css } = ssr.fragments(name, bodyModule, data);
+    const body = html + '\n';
+    const head = css ? `<style>${css}</style>\n` : '';
 
-      const body = html + '\n';
-      const head = css ? `<style>${css}</style>\n` : '';
-      const script = `
-        <script type='module'>
-          import ${moduleName} from '/${component}';
+    next(0, { body, head });
+  }
 
-          const ${moduleName}Shell = window.hydrate(${moduleName});
+  if (!is.Function(initialize)) {
+    return goNext(0, null);
+  }
 
-          ${moduleName}Shell(document.querySelector('${name}'));
-        </script>
-      `;
-
-      next(0, { body, head, script });
-    });
+  initialize(request, url.parse(request.url), goNext);
 }
 
 /*
@@ -239,16 +234,17 @@ function getHeader (riotPlugin, pageConfig) {
 /*
   @ HTTP request object.
   @ HTTP response object.
+  @ vite instance.
   @ path.
   @ page config object. */
-function pageRespond (request, response, vite, path, pageConfig, error500Config = null) {
+function pageRespond (request, response, vite = null, path, pageConfig, entryClientPath = null, error500Config = null) {
   const { body } = pageConfig;
 
   if (!body) {
     log(path + '\ncan not handle the body for this path.', 'warn');
     response.status(500);
 
-    if (error500Config) { pageRespond(request, response, path, error500Config); }
+    if (error500Config) { pageRespond(request, response, vite, path, error500Config, entryClientPath); }
     else { response.send('Error 500.'); }
 
     return;
@@ -262,81 +258,128 @@ function pageRespond (request, response, vite, path, pageConfig, error500Config 
     request,
     body,
     (error, result) => {
+      const { body, head } = result;
+
+      // === handle html head part. ===
+
       const { css, js } = pageConfig;
-      let bodyString = '';
-      let headString = getHeader(request.riotPlugin, pageConfig);
-      let scriptString = request.riotPlugin.StorePrint();
+      let headString = getHeader(request.riotPlugin, pageConfig) + head;
 
       if (!is.Array(css)) {
         log(path + '\npage config css is not an array.', 'warn');
       }
       else {
-        for (let i = 0; i < css.length; i++) {
-          const cssPath = css[i];
-
+        css.forEach(cssPath => {
           if (!is.String(cssPath)) {
-            log('CSS path in page config is not a string.', 'warn');
-
-            continue;
+            return log('CSS path in page config is not a string.', 'warn');
           }
 
           headString += `<link rel='stylesheet' type='text/css' href='${cssPath}'/>\n`;
-        }
+        });
       }
 
       if (!is.Array(js)) {
         log(path + '\npage config js is not an array.', 'warn');
       }
       else {
-        for (let i = 0; i < js.length; i++) {
-          const jsPath = js[i];
-
+        js.forEach(jsPath => {
           if (!is.String(jsPath)) {
-            log('js path in page config is not a string.', 'warn');
-
-            continue;
+            return log('js path in page config is not a string.', 'warn');
           }
 
           headString += `<script src='${jsPath}'></script>\n`;
-        }
+        });
       }
+
+      if (vite) {
+        headString += `
+          <script type="module">
+            import RiotPlugin from 'riot-4-fun/core/plugin.mjs';
+            import { install, hydrate } from 'riot-4-fun/core/runtime.mjs';
+
+            window.hydrate = hydrate;
+            window.riotPlugin = new RiotPlugin();
+
+            install(component => window.riotPlugin.Bind(component));
+          </script>
+        `;
+      } else {
+        headString += `<script type='module' src='/${entryClientPath}'></script>\n`;
+      }
+
+      // === handle html body part. ===
+
+      let bodyString = '';
 
       if (is.String(result)) {
         bodyString += result;
       }
       else {
-        const { body, head, script } = result;
-
-        headString += head + `
-          <script type="module">
-            import * as riot from 'riot';
-            import hydrate from 'riot-4-fun/dist/hydrate.min.js';
-
-            window.riot = riot;
-            window.hydrate = hydrate;
-          </script>
-        `;
         bodyString += body;
-        scriptString += script;
       }
 
-      vite
-        .transformIndexHtml(
-          path,
-          '<!DOCTYPE HTML>\n<html>\n<head>\n<meta charset=\'utf-8\'/>\n' +
-          headString +
-          '</head>\n<body>\n' +
-          bodyString +
-          scriptString +
-          '</body>\n</html>\n'
-        )
-        .then(html => {
-          response.writeHead(response.statusCode, { 'Content-Type': 'text/html' });
-          response.write(html);
-          response.end();
-        });
-    }
-  );
+      // === handle html script part. ===
+
+      const { component } = pageConfig.body;
+
+      const { name } = pathLib.parse(component);
+
+      const moduleName = name.replace(/-\w/g, one => one.slice(1).toUpperCase());
+
+      let scriptString = request.riotPlugin.StorePrint();
+
+      if (vite) {
+        scriptString += `
+          <script type='module'>
+            import ${moduleName} from '/${component}';
+
+            const ${moduleName}Shell = window.hydrate(${moduleName});
+
+            ${moduleName}Shell(document.querySelector('${name}'));
+          </script>
+        `;
+      } else {
+        scriptString += `
+          <script type='module'>
+            const ${moduleName} = window.getPageInfo('${moduleName}').module;
+
+            const ${moduleName}Shell = window.hydrate(${moduleName});
+
+            ${moduleName}Shell(document.querySelector('${name}'));
+          </script>
+        `;
+      }
+
+      // ===
+
+      const htmlString = `
+        <!DOCTYPE HTML>
+        <html>
+        <head>
+        <meta charset='utf-8'/>
+        ${headString}
+        </head>
+        <body>
+        ${bodyString}
+        ${scriptString}
+        </body>
+        </html>
+      `;
+
+      if (vite) {
+        vite
+          .transformIndexHtml(path, htmlString)
+          .then(html => {
+            response.writeHead(response.statusCode, { 'Content-Type': 'text/html' });
+            response.write(html.replace(/\n +/g, ''));
+            response.end();
+          });
+      } else {
+        response.writeHead(response.statusCode, { 'Content-Type': 'text/html' });
+        response.write(htmlString.replace(/\n +/g, ''));
+        response.end();
+      }
+    });
 }
 
 function bodyParse (request, response, next, uploadFilePath) {
@@ -403,29 +446,8 @@ function bodyParse (request, response, next, uploadFilePath) {
   request.pipe(busboyInstance);
 }
 
-async function run (config) {
-  const app = express();
-  const { errorPage, page, port, route, service, uploadFilePath } = config;
-
-  log('initialize...');
-
-  app.use(cookieParser());
-  app.use(helmet({ contentSecurityPolicy: false })); // header handle for security.
-
-  // To Do: only dev.
-  // === vite middleware hooks express app. ===
-
-  const r4fRootPath = path.resolve(process.cwd(), 'node_modules/riot-4-fun');
-
-  const vite = await createServer({
-    appType: 'custom',
-    configFile: path.join(r4fRootPath, 'vite.config.mjs'), // To Do: config supports merged from user config and r4f defautl config.
-    server: { middlewareMode: true },
-  });
-
-  app.use(vite.middlewares);
-
-  // ==== resource route. ====
+function resourceRoute (app, config) {
+  const { route } = config;
 
   route.forEach(one => {
     const {
@@ -452,13 +474,17 @@ async function run (config) {
       }
 
       filePath = decodeURI(url.charAt(0) === '/' ? url.slice(1) : url);
-      filePath = path.resolve(process.env.PWD, location, fileName || (nameOnly ? path.basename(filePath) : filePath));
+      filePath = pathLib.resolve(
+        process.env.PWD, location, fileName ||
+        (nameOnly ? pathLib.basename(filePath) : filePath));
 
       return fileRespond(request, response, filePath);
     });
   });
+}
 
-  // ==== service route. ====
+function serviceRoute (app, config) {
+  const { service, uploadFilePath } = config;
 
   const SvcCsEntrs = Object.entries(service); // service case entries.
 
@@ -476,8 +502,12 @@ async function run (config) {
       }
     }
   }
+}
 
-  // ==== import page riot components then set up page route. ====
+async function pageConfigUpdateDev (config, vite) {
+  const { errorPage, page } = config;
+
+  // ==== import page riot components. ====
 
   const pageModuleMap = await loadR4fPageModules(vite, page);
 
@@ -491,6 +521,149 @@ async function run (config) {
     if (pageModuleMap[path]) {
       body.module = pageModuleMap[path];
     }
+  });
+
+  // ==== import error page riot components. ====
+
+  const errorPageModuleMap = await loadR4fPageModules(vite, errorPage);
+
+  Object.entries(errorPage).forEach(([ path, pageConfig ]) => {
+    const { body } = pageConfig;
+
+    if (!body.initialize) {
+      body.initialize = (_request, _option, callback) => callback(0, null);
+    }
+
+    if (errorPageModuleMap[path]) {
+      body.module = errorPageModuleMap[path];
+    }
+  });
+}
+
+async function run (config) {
+  const app = express();
+  const { errorPage, page, port } = config;
+
+  log('initialize...');
+
+  app.use(cookieParser());
+  app.use(helmet({ contentSecurityPolicy: false })); // header handle for security.
+
+  // === vite middleware hooks express app. ===
+
+  const r4fRootPath = pathLib.resolve(process.cwd(), 'node_modules/riot-4-fun');
+
+  const vite = await createServer({
+    appType: 'custom',
+    configFile: pathLib.join(r4fRootPath, 'vite.config.mjs'), // To Do: config supports merged from user config and r4f defautl config.
+    server: { middlewareMode: true },
+  });
+
+  app.use(vite.middlewares);
+
+  resourceRoute(app, config); // resource route.
+  serviceRoute(app, config); // service route.
+
+  // === import page and error page riot component and update the config. ===
+
+  await pageConfigUpdateDev(config, vite);
+
+  // ==== set up page routes. ====
+
+  Object.entries(page).forEach(([ path, pageConfig ]) => {
+    app.get(
+      path,
+      (request, response, next) => {
+        const accept = request.headers.accept || '';
+
+        // asset | sourcemap | vite client.
+        if (!accept.includes('text/html')) {
+          return next();
+        }
+
+        pageRespond(request, response, vite, path, pageConfig, null, null);
+      }
+    );
+  });
+
+  // ==== 404 route. ====
+
+  app.use((request, response) => {
+    const Pg404 = errorPage['404'] || null;
+
+    response.status(404);
+
+    if (Pg404) {
+      pageRespond(request, response, vite, request.url, Pg404);
+    }
+    else { response.send('Error 404.'); }
+  });
+
+  // === start the server. ===
+
+  log('run...');
+  app.listen(port, () => { log('server has started - 127.0.0.1:' + port.toString()); });
+}
+
+const runDev = run;
+
+function pageConfigUpdateProd (config, getPageInfo) {
+  const { errorPage, page } = config;
+
+  // ==== import page riot components. ====
+
+  Object.entries(page).forEach(([ path, pageConfig ]) => {
+    const { body } = pageConfig;
+    const pageInfo = getPageInfo(path);
+
+    if (!body.initialize) {
+      body.initialize = (_request, _option, callback) => callback(0, null);
+    }
+
+    if (pageInfo.module) {
+      body.module = pageInfo.module;
+    }
+  });
+
+  // ==== import error page riot components. ====
+
+  // To Do: error pages update.
+}
+
+async function runProd (config, getPageInfo, entryClient) {
+  const app = express();
+  const { errorPage, page, port } = config;
+
+  log('initialize...');
+
+  app.use(cookieParser());
+  app.use(helmet({ contentSecurityPolicy: false })); // header handle for security.
+
+  resourceRoute(app, config); // resource route.
+  serviceRoute(app, config); // service route.
+
+  // === import page and error page riot component and update the config. ===
+
+  pageConfigUpdateProd(config, getPageInfo);
+
+  // === server assets files. ===
+
+  app.use('/assets', express.static('.r4f/client/assets'));
+
+  // ==== import page riot components then set up page route. ====
+
+  Object.entries(page).forEach(([ path, pageConfig ]) => {
+    const { body } = pageConfig;
+
+    if (!body.initialize) {
+      body.initialize = (_request, _option, callback) => callback(0, null);
+    }
+
+    const pageModuleInfo = getPageInfo(path);
+
+    if (pageModuleInfo?.module) {
+      body.module = pageModuleInfo.module;
+    }
 
     app.get(
       path,
@@ -502,26 +675,31 @@ async function run (config) {
           return next();
         }
 
-        pageRespond(request, response, vite, path, pageConfig);
+        pageRespond(request, response, null, path, pageConfig, entryClient.file, null);
       }
     );
   });
 
   // ==== 404 route. ====
 
-  // app.use((request, response) => {
-  //   const Pg404 = errorPage['404'] || null;
+  app.use((request, response) => {
+    const Pg404 = errorPage['404'] || null;
 
-  //   response.status(404);
+    response.status(404);
 
-  //   if (Pg404) { pageRespond(request, response, request.url, Pg404); }
-  //   else { response.send('Error 404.'); }
-  // });
+    if (Pg404) { pageRespond(request, response, null, request.url, Pg404, entryClient.file, null); }
+    else { response.send('Error 404.'); }
+  });
 
   // === start the server. ===
 
   log('run...');
   app.listen(port, () => { log('server has started - 127.0.0.1:' + port.toString()); });
 }
+
+export {
+  runDev,
+  runProd,
+};
 
 export default run;
