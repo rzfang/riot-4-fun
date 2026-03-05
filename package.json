@@ -16,8 +16,8 @@
   "author": "RZ Fang",
   "license": "ISC",
   "scripts": {
-    "build": "esbuild node_modules/@riotjs/hydrate/index.js --format=esm --minify --outfile=dist/hydrate.min.js",
     "lint": "eslint",
+    "postinstall": "esbuild core/runtime.mjs --bundle --format=esm --minify --outfile=dist/runtime.min.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "files": [
@@ -54,14 +54,13 @@
   "devDependencies": {
     "@eslint/json": "^0.13.0",
     "@eslint/markdown": "^7.0.0",
+    "@fastify/pre-commit": "^2.2.1",
     "@riotjs/cli": "^9.0.0",
     "@types/busboy": "^1.5.4",
     "@types/cookie-parser": "^1.4.10",
-    "esbuild": "^0.25.0",
-    "pre-commit": "^1.2.2"
+    "esbuild": "^0.25.0"
   },
   "pre-commit": [
-    "build",
     "lint"
   ]
 }
