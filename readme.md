@@ -6,9 +6,30 @@ Let's play riot 4+, FOR FUN.
 I try to have a HTTP server solution for my only need, so there is no much wise choice or best practice.  
 Everything recalls a simple concept - easy using and fun for developer.
 
+## Get start.
+In package.json
+```json
+{
+  "scripts": {
+    "dev": "r4f dev",
+    "build": "r4f build",
+    "start": "r4f start"
+  }
+}
+```
+
+Run the scripts
+```sh
+npm run dev
+# or
+npm run build
+npm run start
+```
+
 ## This project uses
 * HTML, Js, CSS
 * [node.js](https://nodejs.org/en/) and [npm](https://www.npmjs.com/)
+* [Express](https://expressjs.com/)
 * [Riot](https://riot.js.org/)
 * [esbuild](https://esbuild.github.io/)
 * [vite](https://vite.dev/)

@@ -412,8 +412,8 @@ function bodyParse (request, response, next, uploadFilePath) {
 
   busboyInstance.on(
     'file',
-    (key, fileStream, fileName) => { // key, file stream, file name, encoding, mine type.
-      const destinationPath = uploadFilePath + '/' + fileName; // destination file path.
+    (key, fileStream, { filename }) => { // key, file stream, file name, encoding, mine type.
+      const destinationPath = uploadFilePath + '/' + filename; // destination file path.
 
       fileStream.pipe(fs.createWriteStream(destinationPath));
       fileStream.on('end', () => files.push(destinationPath));
@@ -498,7 +498,7 @@ function serviceRoute (app, config) {
 
       if (app[Mthd]) {
         app[Mthd](path, (request, response, next) => { bodyParse(request, response, next, uploadFilePath); }); // parse body for each service.
-        app[Mthd](path, (request, response) => { serviceRespond(request, response, service) });
+        app[Mthd](path, (request, response) => { serviceRespond(request, response, service); });
       }
     }
   }
