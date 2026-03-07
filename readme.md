@@ -10,6 +10,9 @@ Everything recalls a simple concept - easy using and fun for developer.
 In package.json
 ```json
 {
+  "dependencies": {
+    "riot-4-fun": "latest"
+  },
   "scripts": {
     "dev": "r4f dev",
     "build": "r4f build",

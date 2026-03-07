@@ -15,7 +15,6 @@ import RiotPlugin from './plugin.mjs';
 
 async function loadR4fPageModules (vite, pageConfigMap) {
   const modules = {};
-
   const pageConfigs = Object.entries(pageConfigMap);
 
   for (const [ routePath, { body } ] of pageConfigs) {
@@ -524,6 +523,10 @@ async function pageConfigUpdateDev (config, vite) {
   });
 
   // ==== import error page riot components. ====
+
+  if (!errorPage) {
+    return;
+  }
 
   const errorPageModuleMap = await loadR4fPageModules(vite, errorPage);
 
