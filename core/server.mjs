@@ -5,12 +5,12 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import fs from 'fs';
 import helmet from 'helmet';
+import is from 'rzjs/is.mjs';
+import log from 'rzjs/log.mjs';
 import pathLib from 'path';
 import url from 'url';
 import { createServer } from 'vite';
 
-import is from 'rzjs/is.mjs';
-import log from 'rzjs/log.mjs';
 import RiotPlugin from './plugin.mjs';
 
 async function loadR4fPageModules (vite, pageConfigMap) {
@@ -685,14 +685,16 @@ async function runProd (config, getPageInfo, entryClient) {
 
   // ==== 404 route. ====
 
-  app.use((request, response) => {
-    const Pg404 = errorPage['404'] || null;
+  if (errorPage && errorPage['404']) {
+    app.use((request, response) => {
+      const Pg404 = errorPage['404'] || null;
 
-    response.status(404);
+      response.status(404);
 
-    if (Pg404) { pageRespond(request, response, null, request.url, Pg404, entryClient.file, null); }
-    else { response.send('Error 404.'); }
-  });
+      if (Pg404) { pageRespond(request, response, null, request.url, Pg404, entryClient.file, null); }
+      else { response.send('Error 404.'); }
+    });
+  }
 
   // === start the server. ===
 

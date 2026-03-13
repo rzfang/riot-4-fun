@@ -1,10 +1,10 @@
 import * as acorn from 'acorn';
 import Concat from 'concat-with-sourcemaps';
 import fs from 'fs';
+import log from 'rzjs/log.mjs';
 import { compile } from '@riotjs/compiler';
 import { SourceMapConsumer } from '@jridgewell/source-map';
 
-import log from 'rzjs/log.mjs';
 import { riotCodeSplit } from '../helper.mjs';
 
 function getCodeBlock (code, line, range = 3, lineWidth = 80) {
