@@ -282,11 +282,21 @@ function pageRespond (request, response, vite = null, path, pageConfig, entryCli
       }
       else {
         js.forEach(jsPath => {
-          if (!is.String(jsPath)) {
-            return log('js path in page config is not a string.', 'warn');
+          if (is.String(jsPath)) {
+            headString += `<script src='${jsPath}'></script>\n`;
+
+            return;
           }
 
-          headString += `<script src='${jsPath}'></script>\n`;
+          if (is.Object(jsPath)) {
+            headString += '<script ' +
+              Object.entries(jsPath).map(([ key, value ]) => `${key}='${value}'`).join(' ') +
+              '></script>';
+
+            return;
+          }
+
+          return log('js path in page config is not a string.', 'warn');
         });
       }
 

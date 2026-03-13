@@ -1,6 +1,6 @@
 {
   "name": "riot-4-fun",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "riot-4-fun is a HTTP server framework.",
   "main": "index.js",
   "bin": {
@@ -52,7 +52,7 @@
     "vite": "^7.1.11"
   },
   "devDependencies": {
-    "@eslint/json": "^0.13.0",
+    "@eslint/json": "^1.0.0",
     "@eslint/markdown": "^7.0.0",
     "@fastify/pre-commit": "^2.2.1",
     "@riotjs/cli": "^9.0.0",
