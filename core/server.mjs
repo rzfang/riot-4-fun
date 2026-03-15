@@ -681,13 +681,6 @@ async function runProd (config, getPageInfo, entryClient) {
     app.get(
       path,
       (request, response, next) => {
-        const accept = request.headers.accept || '';
-
-        // asset | sourcemap | vite client.
-        if (!accept.includes('text/html')) {
-          return next();
-        }
-
         pageRespond(request, response, null, path, pageConfig, entryClient.file, null);
       }
     );
