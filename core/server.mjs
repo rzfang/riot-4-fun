@@ -52,9 +52,8 @@ function fileRespond (request, response, filePath, expireSeconds = 3600) {
     '.png':  'image/png',
     '.riot': 'application/javascript',
     '.svg':  'image/svg+xml',
-    '.tag':  'text/plain',
-    '.tar':  'application/x-tar',
     '.txt':  'text/plain',
+    '.webp': 'image/webp',
     '.xml':  'application/xml',
   };
 
@@ -455,10 +454,13 @@ function bodyParse (request, response, next, uploadFilePath) {
   request.pipe(busboyInstance);
 }
 
-function resourceRoute (app, config) {
-  const { route } = config;
+function fileRoute (app, config) {
+  const {
+    file = [],
+    route = [], // To Do: route is deprecated, use file.
+  } = config;
 
-  route.forEach(one => {
+  [ ...route, ...file ].forEach(one => { // To Do: route is deprecated, use file.
     const {
       fileName = '',
       location = '',
@@ -489,6 +491,21 @@ function resourceRoute (app, config) {
 
       return fileRespond(request, response, filePath);
     });
+  });
+}
+
+function rawRoute (app, config) {
+  const { raw } = config;
+
+  Object.entries(raw).forEach(([ routePath, action ]) => {
+    if (!is.Function(action)) {
+      // response.writeHead('500', 'no')
+      log('no action for ' + routePath + '.', 'error');
+
+      return;
+    }
+
+    app.get(routePath, action);
   });
 }
 
@@ -574,8 +591,9 @@ async function run (config) {
 
   app.use(vite.middlewares);
 
-  resourceRoute(app, config); // resource route.
+  fileRoute(app, config); // resource route.
   serviceRoute(app, config); // service route.
+  rawRoute(app, config); // raw route.
 
   // === import page and error page riot component and update the config. ===
 
@@ -602,7 +620,7 @@ async function run (config) {
   // ==== 404 route. ====
 
   app.use((request, response) => {
-    const Pg404 = errorPage['404'] || null;
+    const Pg404 = errorPage && errorPage['404'] || null;
 
     response.status(404);
 
@@ -652,8 +670,9 @@ async function runProd (config, getPageInfo, entryClient) {
   app.use(cookieParser());
   app.use(helmet({ contentSecurityPolicy: false })); // header handle for security.
 
-  resourceRoute(app, config); // resource route.
+  fileRoute(app, config); // resource route.
   serviceRoute(app, config); // service route.
+  rawRoute(app, config); // raw route.
 
   // === import page and error page riot component and update the config. ===
 
