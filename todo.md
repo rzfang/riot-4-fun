@@ -1,6 +1,5 @@
 - retire store.riot props `store` rename to `name` warning.
 - retire server.mjs `service.case` rename to `service` warning.
-- refactor, make Http Build, Initialize and Run functions independent from each other.
 - refactor, plugin.mjs StoreListen, StoreUnleash are only needed in Store.riot.
 - Store initial store.
 - refactor, naming to be camel case.

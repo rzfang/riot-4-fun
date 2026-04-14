@@ -501,6 +501,10 @@ function fileRoute (app, config) {
 function rawRoute (app, config) {
   const { raw } = config;
 
+  if (!raw) {
+    return;
+  }
+
   Object.entries(raw).forEach(([ routePath, action ]) => {
     if (!is.Function(action)) {
       // response.writeHead('500', 'no')
