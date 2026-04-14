@@ -34,8 +34,8 @@ npm run start
 * [node.js](https://nodejs.org/en/) and [npm](https://www.npmjs.com/)
 * [Express](https://expressjs.com/)
 * [Riot](https://riot.js.org/)
-* [esbuild](https://esbuild.github.io/)
-* [vite](https://vite.dev/)
+* [esbuild](https://esbuild.github.io/) - to pack Riot library.
+* [vite](https://vite.dev/) - as the Express app plugin to handle page rendering.
 
 ## Features
 * [Multiple components in one single file.](#multiple-components-in-one-single-file)
@@ -49,6 +49,13 @@ npm run start
 For eaiser code arrangement, we want to tear the whole component as several parts. For example a complex `li` in `ul`. But we clearly know that all parts work together and won't needed for any others, it is really unnecessary to have another files for these parts. So we can simply write code as followed:
 
 ```html
+<whatever>
+  <script>
+    import anotherLib from 'another-lib';
+    import anotherRiot from './another-riot.riot';
+  </script>
+</whatever>
+
 <part1>
   This is custom component 1.
 </part1>
@@ -57,7 +64,7 @@ For eaiser code arrangement, we want to tear the whole component as several part
   This is custom component 2.
   <script>
     export default {
-      components: { part1 }
+      components: { part1, anotherRiot }
     };
   </script>
 </part2>
@@ -74,7 +81,7 @@ For eaiser code arrangement, we want to tear the whole component as several part
 
   <script>
     export default {
-      components: { part1, part2, partThree },
+      components: { part1, part2, partThree, anotherRiot },
     };
   </script>
 </final>
@@ -157,7 +164,10 @@ export default { // riot-4-fun config.
       post: something.addOne,
     },
   },
-  route: [
+  raw: {
+    '/simple-request': httpRequestHandleFunc,
+  },
+  file: [
     {
       path: 'favicon.ico',
       location: './public',

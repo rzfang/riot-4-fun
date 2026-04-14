@@ -45,7 +45,7 @@ async function runBuild (option) {
 
   const { default: config } = await import(configPath);
 
-  build(config);
+  await build(config);
 }
 
 async function runProdServer (option) {
@@ -107,4 +107,5 @@ program
   .option('-c, --config <config>')
   .action(runProdServer);
 
-program.parse(process.argv);
+// program.parse(process.argv);
+await program.parseAsync(process.argv);

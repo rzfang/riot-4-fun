@@ -421,7 +421,11 @@ function bodyParse (request, response, next, uploadFilePath) {
   busboyInstance.on(
     'file',
     (key, fileStream, { filename }) => { // key, file stream, file name, encoding, mine type.
-      const destinationPath = uploadFilePath + '/' + filename; // destination file path.
+      // Note: busboy does not handle well.
+      // https://github.com/expressjs/multer/issues/1104#issuecomment-1152987772
+      const parsedFileName = Buffer.from(filename, 'latin1').toString('utf8');
+
+      const destinationPath = uploadFilePath + '/' + parsedFileName; // destination file path.
 
       fileStream.pipe(fs.createWriteStream(destinationPath));
       fileStream.on('end', () => files.push(destinationPath));
