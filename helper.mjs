@@ -18,7 +18,7 @@ function riotCodeSplit (code) {
     const partCode = code.substring(code.indexOf(startTag), endIndex);
 
     // name in Js code will be from tag name with camel case.
-    const name = tagName.replace(/-\w/g, Str => Str.substr(1).toUpperCase());
+    const name = tagName.replace(/-\w/g, str => str.substr(1).toUpperCase());
 
     // === handle partial Js code. ===
 
