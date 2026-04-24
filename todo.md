@@ -7,3 +7,6 @@
 - client side route.
 - express route to be r4f route for O(n) to be O(1).
 - unit test.
+- automatically handle 'import' for each component in a file.
+- tab-box into r4f ?
+- cover-box into r4f ?

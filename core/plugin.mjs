@@ -151,11 +151,10 @@ export class Plugin {
       @ params to task. to locate where the event comes from.
     @ run once in the beginning. */
   StoreListen (StoNm, Then, RnOnc = true) {
-    let Clbcks = this.Srvc.Rprt[StoNm] || null;
+    const Clbcks = this.Srvc.Rprt[StoNm] || null;
 
     if (!Clbcks || !Array.isArray(Clbcks)) {
       this.Srvc.Rprt[StoNm] = [];
-      Clbcks = this.Srvc.Rprt[StoNm];
     }
 
     this.Srvc.Rprt[StoNm].push(Then);

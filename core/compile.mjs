@@ -26,8 +26,6 @@ function getCodeBlock (code, line, range = 3, lineWidth = 80) {
 function r4fCompile (filePath, sourceCode  = '') {
   const codeParts = riotCodeSplit(sourceCode || fs.readFileSync(filePath, 'utf8'));
   const concat = new Concat(true, filePath, '\n\n');
-  let compiledCode = '';
-  let compiledMap = null;
   let error = null;
 
   codeParts.forEach(({ code, name }) => {
@@ -43,8 +41,8 @@ function r4fCompile (filePath, sourceCode  = '') {
     );
   });
 
-  compiledCode = concat.content.toString() + '\n\nexport default ' + codeParts.at(-1).name + ';\n';
-  compiledMap = concat.sourceMap;
+  const compiledCode = concat.content.toString() + '\n\nexport default ' + codeParts.at(-1).name + ';\n';
+  const compiledMap = concat.sourceMap;
 
   try {
     acorn.parse(compiledCode, { ecmaVersion: 'latest', sourceType: 'module' });
