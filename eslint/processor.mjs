@@ -24,7 +24,7 @@ const processor = {
       parsedText = parsedText.replace(code, newCode);
     });
 
-    parsedText = parsedText.replace(new RegExp('\n' + prefixSpaces, 'g'), '\n').trim();
+    parsedText = parsedText.replace(new RegExp('\n' + prefixSpaces, 'g'), '\n');
 
     return [ parsedText ];
   },

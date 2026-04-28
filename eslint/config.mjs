@@ -20,6 +20,17 @@ const config = {
   rules: {
     ...jsStrictConfig.rules,
     ...jsStyleConfig.rules,
+    '@stylistic/no-multiple-empty-lines': 'off',
+    '@stylistic/comma-dangle': [
+      'error',
+      {
+        arrays: 'always-multiline',
+        exports: 'always-multiline',
+        functions: 'never',
+        imports: 'always-multiline',
+        objects: 'only-multiline',
+      },
+    ],
   },
 };
 
