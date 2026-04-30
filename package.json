@@ -46,7 +46,7 @@
     "globals": "^16.3.0",
     "helmet": "^7.0.0",
     "riot": "^10.0.0",
-    "rzjs": "github:rzfang/Js",
+    "rzjs": "github:rzfang/Js#v0.6.9",
     "vite": "^7.1.11"
   },
   "devDependencies": {
