@@ -1,6 +1,5 @@
 - refactor, plugin.mjs StoreListen, StoreUnleash are only needed in Store.riot.
 - Store initial store.
-- refactor, naming to be camel case.
 - refactor: server has too much dev/prod if else handling.
 - client side route.
 - express route to be r4f route for O(n) to be O(1).

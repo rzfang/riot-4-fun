@@ -1,11 +1,11 @@
 /* make a AJAX request.
-  @ AJAX Info object, key-value pairs.
+  @ AJAX info object, key-value pairs.
   < XMLHttpRequest object. or null as error. */
-function AJAX (Info) {
-  function StateChange () {
+function ajax (info) {
+  function stateChange () {
     switch (this.readyState) {
       case 0:
-        Info.Bfr();
+        info.Bfr();
 
         break;
 
@@ -15,16 +15,16 @@ function AJAX (Info) {
         break;
 
       case 4:
-        if (this.status === 200) { Info.OK(this.responseText, this.status, this); }
-        else { Info.Err(this.status); }
+        if (this.status === 200) { info.OK(this.responseText, this.status, this); }
+        else { info.Err(this.status); }
 
-        Info.End();
+        info.End();
 
         break;
     }
   }
 
-  const DftInfo = {
+  const defaultInfo = {
     URL: '',
     Data: {},
     Files: {},
@@ -32,105 +32,105 @@ function AJAX (Info) {
     OK: () => {},
   }; // OK callback function. optional. 'RpsTxt' = Response Text, 'Sts' = HTTP Status code.
 
-  if (typeof Info.URL !== 'string' || Info.URL === '') { return null; }
+  if (typeof info.URL !== 'string' || info.URL === '') { return null; }
 
-  Info.Data = (typeof Info.Data === 'object' && Info.Data !== null) ? Info.Data : DftInfo.Data;
-  Info.Mthd = Info.Mthd || 'GET';
-  Info.Bfr = (typeof Info.Bfr === 'function') ? Info.Bfr : () => {}; // Before callback function. optional.
-  Info.Err = (typeof Info.Err === 'function') ? Info.Err : DftInfo.Err;
-  Info.OK = (typeof Info.OK === 'function') ? Info.OK : DftInfo.OK;
-  Info.End = (typeof Info.End === 'function') ? Info.End : () => {};
-  Info.Pgs = (typeof Info.Pgs === 'function') ? Info.Pgs : () => {}; // Progress callback function. optional.
+  info.Data = (typeof info.Data === 'object' && info.Data !== null) ? info.Data : defaultInfo.Data;
+  info.Mthd = info.Mthd || 'GET';
+  info.Bfr = (typeof info.Bfr === 'function') ? info.Bfr : () => {}; // Before callback function. optional.
+  info.Err = (typeof info.Err === 'function') ? info.Err : defaultInfo.Err;
+  info.OK = (typeof info.OK === 'function') ? info.OK : defaultInfo.OK;
+  info.End = (typeof info.End === 'function') ? info.End : () => {};
+  info.Pgs = (typeof info.Pgs === 'function') ? info.Pgs : () => {}; // Progress callback function. optional.
 
-  const FmDt = new FormData(); // 'FmDt' = Form Data.
-  const XHR = new XMLHttpRequest();
-  let Kys = Object.keys(Info.Data); // 'Kys' = Keys.
+  const formData = new FormData();
+  const xhr = new XMLHttpRequest();
+  let keys = Object.keys(info.Data);
 
-  for (let i = 0; i < Kys.length; i++) {
-    const Tp = typeof Info.Data[Kys[i]];
+  for (let i = 0; i < keys.length; i++) {
+    const type = typeof info.Data[keys[i]];
 
-    if (Array.isArray(Info.Data[Kys[i]])) {
-      const Ky = Kys[i] + '[]';
-      const Vl = Info.Data[Kys[i]];
+    if (Array.isArray(info.Data[keys[i]])) {
+      const key = keys[i] + '[]';
+      const value = info.Data[keys[i]];
 
-      const Lth = Vl.length;
+      const length = value.length;
 
-      for (let j = 0; j < Lth; j++) { FmDt.append(Ky, Vl[j]); }
+      for (let j = 0; j < length; j++) { formData.append(key, value[j]); }
     }
-    else if (Tp === 'string' || Tp === 'number') { FmDt.append(Kys[i], Info.Data[Kys[i]]); }
+    else if (type === 'string' || type === 'number') { formData.append(keys[i], info.Data[keys[i]]); }
   }
 
-  if (typeof Info.File === 'object' && Info.File !== null) {
-    Kys = Object.keys(Info.File);
+  if (typeof info.File === 'object' && info.File !== null) {
+    keys = Object.keys(info.File);
 
-    for (let i = 0; i < Kys.length; i++) { FmDt.append(Kys[i], Info.File[Kys[i]]); }
+    for (let i = 0; i < keys.length; i++) { formData.append(keys[i], info.File[keys[i]]); }
   }
 
-  XHR.timeout = 5000;
-  XHR.onreadystatechange = StateChange;
-  XHR.upload.onprogress =  Evt => { Info.Pgs(Evt.loaded, Evt.total, Evt); };
+  xhr.timeout = 5000;
+  xhr.onreadystatechange = stateChange;
+  xhr.upload.onprogress =  event => { info.Pgs(event.loaded, event.total, event); };
 
-  if (Info.Mthd === 'GET') {
-    let Url;
+  if (info.Mthd === 'GET') {
+    let url;
 
-    if (Info.URL.substr(0, 1) === '/') {
-      Url = new URL(window.location.origin + Info.URL);
+    if (info.URL.substr(0, 1) === '/') {
+      url = new URL(window.location.origin + info.URL);
     }
-    else if (Info.URL.substr(0, 4) === 'http') {
-      Url = new URL(window.location.origin);
+    else if (info.URL.substr(0, 4) === 'http') {
+      url = new URL(window.location.origin);
     }
     else {
-      Url = new URL(window.location.origin + '/' + Info.URL);
+      url = new URL(window.location.origin + '/' + info.URL);
     }
 
-    Info.URL = Url.pathname +
+    info.URL = url.pathname +
       '?' +
-      (Url.search ? (new URLSearchParams(Url.search).toString() + '&') : '') +
-      new URLSearchParams(FmDt).toString();
+      (url.search ? (new URLSearchParams(url.search).toString() + '&') : '') +
+      new URLSearchParams(formData).toString();
   }
 
-  XHR.open(Info.Mthd, Info.URL);
+  xhr.open(info.Mthd, info.URL);
 
-  // XHR.overrideMimeType('text/xml');
-  XHR.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // to use AJAX way.
+  // xhr.overrideMimeType('text/xml');
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // to use AJAX way.
 
-  if (typeof Info.Hdrs === 'object' && Info.Hdrs !== null) {
-    Kys = Object.keys(Info.Hdrs);
+  if (typeof info.Hdrs === 'object' && info.Hdrs !== null) {
+    keys = Object.keys(info.Hdrs);
 
-    for (let i = 0; i < Kys.length; i++) { XHR.setRequestHeader(Kys[i], Info.Hdrs[Kys[i]]); }
+    for (let i = 0; i < keys.length; i++) { xhr.setRequestHeader(keys[i], info.Hdrs[keys[i]]); }
   }
 
-  if (Info.Mthd === 'GET') { XHR.send(); }
-  else { XHR.send(FmDt); }
+  if (info.Mthd === 'GET') { xhr.send(); }
+  else { xhr.send(formData); }
 
-  return XHR;
+  return xhr;
 }
 
 export class Plugin {
-  constructor (Rqst = null) {
-    this.Rqst = Rqst;
+  constructor (request = null) {
+    this.Rqst = request;
     this.Srvc = { Rprt: {}, Sto: {}}; // service, report, data store.
   }
 
-  /* do the 'Tsk' function is on the browser environment.
+  /* do the 'task' function is on the browser environment.
     @ the task function will run on client (browser) side.
     < bool. */
-  OnBrowser (Tsk) {
+  OnBrowser (task) {
     if (typeof process === 'object') { return false; }
 
-    if (typeof Tsk === 'function') { Tsk(); }
+    if (typeof task === 'function') { task(); }
 
     return true;
   }
 
-  /* do the 'Tsk' function if on the node environment.
+  /* do the 'task' function if on the node environment.
     @ the task function will run on server (node) side.
     @ the request object in node.js, otherwise undefined. optional.
     < bool. */
-  OnNode (Tsk) {
+  OnNode (task) {
     if (typeof process !== 'object') { return false; }
 
-    if (typeof Tsk === 'function') { Tsk(this.Rqst); }
+    if (typeof task === 'function') { task(this.Rqst); }
 
     return true;
   }
@@ -138,69 +138,69 @@ export class Plugin {
   /* get a store.
     @ a string of store key.
     < store object, or null. */
-  StoreGet (Ky) {
-    if (!Ky || typeof Ky !== 'string') { return null; }
+  StoreGet (key) {
+    if (!key || typeof key !== 'string') { return null; }
 
-    return this.Srvc.Sto[Ky] || null;
+    return this.Srvc.Sto[key] || null;
   }
 
   /* currently, this is only used by store.riot.
     @ name to locate the store.
-    @ Then(Sto, PrmsToTsk) = then, a function when the task done.
+    @ then(store, paramsToTask) = then, a function when the task done.
       @ the store object.
       @ params to task. to locate where the event comes from.
     @ run once in the beginning. */
-  StoreListen (StoNm, Then, RnOnc = true) {
-    const Clbcks = this.Srvc.Rprt[StoNm] || null;
+  StoreListen (storeName, then, runOnce = true) {
+    const callbacks = this.Srvc.Rprt[storeName] || null;
 
-    if (!Clbcks || !Array.isArray(Clbcks)) {
-      this.Srvc.Rprt[StoNm] = [];
+    if (!callbacks || !Array.isArray(callbacks)) {
+      this.Srvc.Rprt[storeName] = [];
     }
 
-    this.Srvc.Rprt[StoNm].push(Then);
+    this.Srvc.Rprt[storeName].push(then);
 
-    if (RnOnc && this.Srvc.Sto[StoNm]) { Then(this.Srvc.Sto[StoNm], null); } // if the task store is ready, call once first.
+    if (runOnce && this.Srvc.Sto[storeName]) { then(this.Srvc.Sto[storeName], null); } // if the task store is ready, call once first.
   }
 
   /* currently, this is only used by store.riot.
     @ store name.
     @ target report. */
-  StoreUnleash (StoNm, TgtRprt) {
-    const Rprt = this.Srvc.Rprt[StoNm];
+  StoreUnleash (storeName, targetReport) {
+    const report = this.Srvc.Rprt[storeName];
 
-    if (!Rprt) { return; }
+    if (!report) { return; }
 
-    for (let i = 0; i < Rprt.length; i++) {
-      if (Rprt[i] === TgtRprt) { this.Srvc.Rprt[StoNm].splice(i, 1); }
+    for (let i = 0; i < report.length; i++) {
+      if (report[i] === targetReport) { this.Srvc.Rprt[storeName].splice(i, 1); }
     }
   }
 
   /*
     @ name to locate the store.
-    @ NewStoreGet (Sto, Rst) = the function to get new store, this must return something to replace original store.
+    @ newStoreGet(store, result) = the function to get new store, this must return something to replace original store.
       @ original store data.
       < new store object.
     @ params object passing to each task.
     < result code. 0 as fine, < 0 as error. */
-  StoreSet (StoNm, NewStoreGet, PrmsToTsk) {
-    if (!StoNm || typeof StoNm !== 'string' || !NewStoreGet || typeof NewStoreGet !== 'function') { return -1; }
+  StoreSet (storeName, newStoreGet, paramsToTask) {
+    if (!storeName || typeof storeName !== 'string' || !newStoreGet || typeof newStoreGet !== 'function') { return -1; }
 
-    const Rprt = this.Srvc.Rprt[StoNm] || [];
+    const report = this.Srvc.Rprt[storeName] || [];
 
-    const Lnth = Rprt && Array.isArray(Rprt) && Rprt.length || 0;
+    const length = report && Array.isArray(report) && report.length || 0;
 
-    this.Srvc.Sto[StoNm] = NewStoreGet(this.Srvc.Sto[StoNm]);
+    this.Srvc.Sto[storeName] = newStoreGet(this.Srvc.Sto[storeName]);
 
-    for (let i = 0; i < Lnth; i++) { Rprt[i](this.Srvc.Sto[StoNm], PrmsToTsk); }
+    for (let i = 0; i < length; i++) { report[i](this.Srvc.Sto[storeName], paramsToTask); }
 
     return 0;
   }
 
   /* the generated Riot code in browser will call this to initialize Riot-4-Fun Store.
     @ store json string. */
-  StoreInject (StoStr) {
+  StoreInject (storeString) {
     try {
-      this.Srvc.Sto = JSON.parse(StoStr);
+      this.Srvc.Sto = JSON.parse(storeString);
     }
     catch (Err) {
       console.log(Err); // eslint-disable-line no-console
@@ -210,14 +210,14 @@ export class Plugin {
   /* print store as browser Js code to initialize Riot-4-Fun Store support in browser environment.
     this only works on node.js to generates HTML page source code. */
   StorePrint () {
-    const Stos = Object.entries(this.Srvc.Sto);
+    const stores = Object.entries(this.Srvc.Sto);
 
     if (this.Srvc.Sto.PAGE) {
       this.Srvc.Sto.PAGE = ''; // clean server only store - PAGE.
     }
 
     // no stores, or only PAGE store.
-    if (Stos.length === 0 || (Stos === 1 && Stos[0][1] === 'PAGE')) {
+    if (stores.length === 0 || (stores === 1 && stores[0][1] === 'PAGE')) {
       return '';
     }
 
@@ -230,75 +230,77 @@ export class Plugin {
   }
 
   /* a service which also take cover Store manage.
-    @ URL string, the service entry point.
+    @ URL string, the service entry point, or { Url, Mthd } object.
     @ params object to call service.
     @ name to locate the store.
-    @ NewStoreGet (Sto, Rst) = the function to get new store, this must return something to replace original store.
+    @ newStoreGet (store, result) = the function to get new store, this must return something to replace original store.
       @ original store data.
       @ result from API.
     @ params object passing to each task. optional.
     @ the service cases object in node.js, otherwise undefined. optional.
     < result code. */
-  ServiceCall (Url, Prms, StoNm, NewStoreGet, PrmsToTsk, AjxOptns) {
-    let Mthd = 'POST';
+  ServiceCall (url, params, storeName, newStoreGet, paramsToTask, ajxOptions) {
+    let method = 'POST';
 
-    if (typeof Url === 'object' && Url.Mthd) {
-      Mthd = Url.Mthd;
-      Url = Url.Url;
+    if (typeof url === 'object' && url.Mthd) {
+      method = url.Mthd;
+      url = url.Url;
     }
-    else if (typeof Url !== 'string') {
+    else if (typeof url !== 'string') {
       return -1;
     }
 
-    if (!StoNm || typeof StoNm !== 'string' ||
-        !NewStoreGet || typeof NewStoreGet !== 'function')
+    if (!storeName || typeof storeName !== 'string' ||
+        !newStoreGet || typeof newStoreGet !== 'function')
     { return -2; }
 
-    const Srvc = this.Srvc;
+    const service = this.Srvc;
 
-    AJAX({
-      ...AjxOptns,
-      URL: Url,
-      Mthd,
-      Data: Prms,
+    ajax({
+      ...ajxOptions,
+      URL: url,
+      Mthd: method,
+      Data: params,
       Err: () => {
-        console.log('---- AJAX query fail ----\nUrl: ' + Url + '\nparams:'); // eslint-disable-line no-console
-        console.log(Prms); // eslint-disable-line no-console
+        console.log('---- AJAX query fail ----\nUrl: ' + url + '\nparams:'); // eslint-disable-line no-console
+        console.log(params); // eslint-disable-line no-console
         console.log('----\n'); // eslint-disable-line no-console
 
-        Srvc.Sto[StoNm] = NewStoreGet(Srvc.Sto[StoNm], '');
+        service.Sto[storeName] = newStoreGet(service.Sto[storeName], '');
       },
-      OK: (RspnsTxt, Sts, XHR) => {
-        const CntTp = XHR.getResponseHeader('content-type');
-        const Rprt = Srvc.Rprt[StoNm] || [];
-        let Rst = RspnsTxt;
+      OK: (responseText, status, xhr) => {
+        const contentType = xhr.getResponseHeader('content-type');
+        const report = service.Rprt[storeName] || [];
+        let result = responseText;
 
-        const Lnth = Rprt && Array.isArray(Rprt) && Rprt.length || 0;
+        const length = report && Array.isArray(report) && report.length || 0;
 
-        if (Rst && (CntTp === 'application/json' || CntTp === 'text/json')) { Rst = JSON.parse(Rst); }
+        if (result && (contentType === 'application/json' || contentType === 'text/json')) {
+          result = JSON.parse(result);
+        }
 
-        Srvc.Sto[StoNm] = NewStoreGet(Srvc.Sto[StoNm], Rst);
+        service.Sto[storeName] = newStoreGet(service.Sto[storeName], result);
 
-        for (let i = 0; i < Lnth; i++) { Rprt[i](Srvc.Sto[StoNm], PrmsToTsk); }
+        for (let i = 0; i < length; i++) { report[i](service.Sto[storeName], paramsToTask); }
       },
     });
 
     return 0;
   }
 
-  Bind (Cmpnt) {
-    Cmpnt.OnBrowser = this.OnBrowser;
-    Cmpnt.OnNode = (...Vls) => this.OnNode.apply(this, Vls); // Vls = values.
-    Cmpnt.StoreGet = (...Vls) => this.StoreGet.apply(this, Vls);
-    Cmpnt.StoreListen = (...Vls) => this.StoreListen.apply(this, Vls); // currently, only Store.riot uses.
-    Cmpnt.StoreUnleash = (...Vls) => this.StoreUnleash.apply(this, Vls); // currently, only Store.riot uses.
-    Cmpnt.StoreSet = (...Vls) => this.StoreSet.apply(this, Vls);
+  Bind (component) {
+    component.OnBrowser = this.OnBrowser;
+    component.OnNode = (...values) => this.OnNode.apply(this, values);
+    component.StoreGet = (...values) => this.StoreGet.apply(this, values);
+    component.StoreListen = (...values) => this.StoreListen.apply(this, values); // currently, only Store.riot uses.
+    component.StoreUnleash = (...values) => this.StoreUnleash.apply(this, values); // currently, only Store.riot uses.
+    component.StoreSet = (...values) => this.StoreSet.apply(this, values);
 
     if (this.OnBrowser()) {
-      Cmpnt.ServiceCall = (...Vls) => this.ServiceCall.apply(this, Vls);
+      component.ServiceCall = (...values) => this.ServiceCall.apply(this, values);
     }
 
-    return Cmpnt;
+    return component;
   }
 }
 
