@@ -1,5 +1,6 @@
 <store>
   <script>
+    import is from 'rzjs/is.mjs';
     import log from 'rzjs/log.mjs';
 
     export default {
@@ -7,29 +8,22 @@
         const {
           initialized = false,
           listener,
-          name = '',
-          store,
+          name,
         } = props;
 
-        const finalName = name || store;
-
-        if (store) {
-          log(`in store ${store} the prop "store" is deprecated, please use prop "name".`, 'warn');
+        if (!is.String(name) || !is.Function(listener)) {
+          return log(`can not register r4f store for name '${name}'.`, 'warn');
         }
 
         // if (this.StoreGet(store)) { return; }
 
-        if (listener) {
-          this.StoreListen(finalName, listener, initialized);
-        }
+        this.StoreListen(name, listener, initialized);
       },
 
       onBeforeUnmount (props) {
-        const { name, store, listener } = props; // name, store name, listener.
+        const { name, listener } = props;
 
-        const finalName = name || store;
-
-        this.StoreUnleash(finalName, listener);
+        this.StoreUnleash(name, listener);
       },
     }
   </script>
