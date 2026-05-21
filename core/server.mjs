@@ -201,11 +201,12 @@ function getHeader (riotPlugin, pageConfig) {
   const pageStore = riotPlugin.StoreGet('PAGE') || {}; // riot plugin instance page store.
 
   const {
-    author,
-    description,
+    author, // To Do: deprecate.
+    description, // To Do: deprecate.
     favicon,
     feed,
-    keywords,
+    keywords, // To Do: deprecate.
+    meta,
     title,
   } = { ...pageConfig, ...pageStore };
 
@@ -213,18 +214,50 @@ function getHeader (riotPlugin, pageConfig) {
 
   if (title) { headString += `<title>${title}</title>\n`; }
 
-  if (description) { headString += `<meta name='description' content='${description}'/>\n`; }
+  if (description) { // To Do: deprecate.
+    headString += `<meta name='description' content='${description}'/>\n`;
 
-  if (keywords) { headString += `<meta name='keywords' content='${keywords}'/>\n`; }
+    log('in r4f.config.mjs, "description" will be deprecated soon, "meta" takes over.', 'warn');
+  }
 
-  if (author) { headString += `<meta name='author' content='${author}'/>\n`; }
+  if (keywords) { // To Do: deprecate.
+    headString += `<meta name='keywords' content='${keywords}'/>\n`;
+
+    log('in r4f.config.mjs, "keywords" will be deprecated soon, "meta" takes over.', 'warn');
+  }
+
+  if (author) { // To Do: deprecate.
+    headString += `<meta name='author' content='${author}'/>\n`;
+
+    log('in r4f.config.mjs, "author" will be deprecated soon, "meta" takes over.', 'warn');
+  }
+
+  if (is.Array(meta)) {
+    headString += meta
+      .map(one => {
+        const html = Object.entries(one)
+          .map(([ key, value ]) => {
+            const parsedKey = key.replace(/ /g, '_');
+
+            return `${parsedKey}='${value}'`;
+          })
+          .join(' ');
+
+        return `<meta ${html}/>`;
+      })
+      .join('\n');
+  } else {
+    log('meta is not an array.', 'warn');
+  }
 
   if (favicon) { headString += `<link rel='icon' href='favicon.ico' type='${favicon}'/>\n`; }
 
   if (feed) { headString += `<link rel='alternate' type='application/atom+xml' title='atom' href='${feed}'/>\n`; }
 
-  headString +=
-    `<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>\n`;
+  if (!headString.includes('viewport')) {
+    headString +=
+      `<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'/>\n`;
+  }
 
   return headString;
 }

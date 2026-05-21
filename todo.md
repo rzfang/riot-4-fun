@@ -10,3 +10,5 @@
 - automatically handle 'import' for each component in a file.
 - tab-box into r4f ?
 - cover-box into r4f ?
+- eslint html check for riot.
+- retire r4f desccription, keywords, author, use meta instead.

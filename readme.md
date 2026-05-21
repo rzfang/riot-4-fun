@@ -127,11 +127,14 @@ export default { // riot-4-fun config.
   page: {
     '/home': {
       title: '',
-      description: '',
-      keywords: '',
-      author: '',
       favicon: '',
       feed: '',
+      meta: [
+        { name: 'author', content: '...' },
+        { name: 'description', content: '...' },
+        { name: 'keywords', content: '...' },
+        { somethingElse: '...' },
+      ],
       css: [ '/style.css' ],
       js: [ '/library.js' ],
       body: {
