@@ -511,7 +511,7 @@ function fileRoute (app, config) {
       return;
     }
 
-    app.get(routePath, (request, response, _next) => {
+    app.get(routePath, (request, response) => {
       const { url } = request;
       let filePath;
 
@@ -553,22 +553,14 @@ function rawRoute (app, config) {
 function serviceRoute (app, config) {
   const { service, uploadFilePath } = config;
 
-  const SvcCsEntrs = Object.entries(service); // service case entries.
-
-  for (let i = 0; i < SvcCsEntrs.length; i++) {
-    const [ path, Mthds ] = SvcCsEntrs[i];
-
-    const MthdsEntrs = Object.entries(Mthds);
-
-    for (let j = 0; j < MthdsEntrs.length; j++) {
-      const [ Mthd, service ] = MthdsEntrs[j];
-
-      if (app[Mthd]) {
-        app[Mthd](path, (request, response, next) => { bodyParse(request, response, next, uploadFilePath); }); // parse body for each service.
-        app[Mthd](path, (request, response) => { serviceRespond(request, response, service); });
+  Object.entries(service).forEach(([ path, methods ]) => {
+    Object.entries(methods).forEach(([ method, service ]) => {
+      if (app[method]) {
+        app[method](path, (request, response, next) => { bodyParse(request, response, next, uploadFilePath); }); // parse body for each service.
+        app[method](path, (request, response) => { serviceRespond(request, response, service); });
       }
-    }
-  }
+    });
+  });
 }
 
 async function pageConfigUpdateDev (config, vite) {
@@ -661,12 +653,12 @@ async function run (config) {
   // ==== 404 route. ====
 
   app.use((request, response) => {
-    const Pg404 = errorPage && errorPage['404'] || null;
+    const p404 = errorPage && errorPage['404'] || null;
 
     response.status(404);
 
-    if (Pg404) {
-      pageRespond(request, response, vite, request.url, Pg404);
+    if (p404) {
+      pageRespond(request, response, vite, request.url, p404);
     }
     else { response.send('Error 404.'); }
   });
@@ -740,7 +732,7 @@ async function runProd (config, getPageInfo, entryClient) {
 
     app.get(
       path,
-      (request, response, next) => {
+      (request, response) => {
         pageRespond(request, response, null, path, pageConfig, entryClient.file, null);
       }
     );
@@ -750,11 +742,11 @@ async function runProd (config, getPageInfo, entryClient) {
 
   if (errorPage && errorPage['404']) {
     app.use((request, response) => {
-      const Pg404 = errorPage['404'] || null;
+      const p404 = errorPage['404'] || null;
 
       response.status(404);
 
-      if (Pg404) { pageRespond(request, response, null, request.url, Pg404, entryClient.file, null); }
+      if (p404) { pageRespond(request, response, null, request.url, p404, entryClient.file, null); }
       else { response.send('Error 404.'); }
     });
   }
