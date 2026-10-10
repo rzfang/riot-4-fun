@@ -7,6 +7,12 @@ I try to have a HTTP server solution for my only need, so there is no much wise 
 Everything recalls a simple concept - easy using and fun for developer.
 
 ## Get start.
+```sh
+npm i riot-4-fun # install r4f.
+npx r4f init # to create a sample r4f config file.
+```
+
+
 In package.json
 ```json
 {

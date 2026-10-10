@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import fs from 'node:fs';
-import packageInfo from '../package.json' with { type: 'json' };
+import log from 'rzjs/log.mjs';
 import path from 'node:path';
 import { program } from 'commander';
 
 import build from '../core/build.mjs';
+import packageInfo from '../package.json' with { type: 'json' };
 import { runDev, runProd } from '../core/server.mjs';
 
 const processEntry = process.cwd();
@@ -84,6 +85,26 @@ async function runProdServer (option) {
   runProd(config, getPageInfo, entryClient);
 }
 
+async function runInit (option) {
+  const { config: configName = 'r4f.config.mjs' } = option;
+
+  const configPath = path.resolve(processEntry, configName);
+
+  if (fs.existsSync(configPath)) {
+    return log(`the config file '${configName}' is existed in ${processEntry}.`, 'warn');
+  }
+
+  fs.copyFileSync(
+    './node_modules/riot-4-fun/sample/r4f.config.mjs',
+    configPath
+  );
+
+  log(`
+    A initial config file "${configName}" is created.
+    Now is your turn to update it, and start your amazing project.
+  `);
+}
+
 program
   .name('r4f')
   .description('Riot.js + Vite development CLI')
@@ -106,6 +127,12 @@ program
   .description('Start production server')
   .option('-c, --config <config>')
   .action(runProdServer);
+
+program
+  .command('init')
+  .description('Initialize to set up a clear R4F dev env')
+  .option('-c, --config <config>')
+  .action(runInit);
 
 // program.parse(process.argv);
 await program.parseAsync(process.argv);

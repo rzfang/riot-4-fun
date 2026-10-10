@@ -232,7 +232,9 @@ function getHeader (riotPlugin, pageConfig) {
     log('in r4f.config.mjs, "author" will be deprecated soon, "meta" takes over.', 'warn');
   }
 
-  if (is.Array(meta)) {
+  if (!meta) {
+    log('the page has no meta information in <head>.', 'warn');
+  } else if (is.Array(meta)) {
     headString += meta
       .map(one => {
         const html = Object.entries(one)
@@ -293,7 +295,7 @@ function pageRespond (request, response, vite = null, path, pageConfig, entryCli
 
       // === handle html head part. ===
 
-      const { css, js } = pageConfig;
+      const { css = [], js = [] } = pageConfig;
       let headString = getHeader(request.riotPlugin, pageConfig) + head;
 
       if (!is.Array(css)) {
