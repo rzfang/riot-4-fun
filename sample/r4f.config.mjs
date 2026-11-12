@@ -20,7 +20,7 @@ export default { // riot-4-fun config.
       js: [ '/library.js' ],
       body: {
         component: './node_modules/riot-4-fun/sample/components/home.riot',
-        Initialize: homePage,
+        initialize: homePage,
       },
     },
     '/page1': {

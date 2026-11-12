@@ -1,3 +1,6 @@
+import is from 'rzjs/is.mjs';
+import log from 'rzjs/log.mjs';
+
 /* make a AJAX request.
   @ AJAX info object, key-value pairs.
   < XMLHttpRequest object. or null as error. */
@@ -32,15 +35,15 @@ function ajax (info) {
     OK: () => {},
   }; // OK callback function. optional. 'RpsTxt' = Response Text, 'Sts' = HTTP Status code.
 
-  if (typeof info.URL !== 'string' || info.URL === '') { return null; }
+  if (is.String(info.URL) || info.URL === '') { return null; }
 
-  info.Data = (typeof info.Data === 'object' && info.Data !== null) ? info.Data : defaultInfo.Data;
+  info.Data = (is.Object(info.Data) && info.Data !== null) ? info.Data : defaultInfo.Data;
   info.Mthd = info.Mthd || 'GET';
-  info.Bfr = (typeof info.Bfr === 'function') ? info.Bfr : () => {}; // Before callback function. optional.
-  info.Err = (typeof info.Err === 'function') ? info.Err : defaultInfo.Err;
-  info.OK = (typeof info.OK === 'function') ? info.OK : defaultInfo.OK;
-  info.End = (typeof info.End === 'function') ? info.End : () => {};
-  info.Pgs = (typeof info.Pgs === 'function') ? info.Pgs : () => {}; // Progress callback function. optional.
+  info.Bfr = is.Function(info.Bfr) ? info.Bfr : () => {}; // Before callback function. optional.
+  info.Err = is.Function(info.Err) ? info.Err : defaultInfo.Err;
+  info.OK = is.Function(info.OK) ? info.OK : defaultInfo.OK;
+  info.End = is.Function(info.End) ? info.End : () => {};
+  info.Pgs = is.Function(info.Pgs) ? info.Pgs : () => {}; // Progress callback function. optional.
 
   const formData = new FormData();
   const xhr = new XMLHttpRequest();
@@ -57,10 +60,10 @@ function ajax (info) {
 
       for (let j = 0; j < length; j++) { formData.append(key, value[j]); }
     }
-    else if (type === 'string' || type === 'number') { formData.append(keys[i], info.Data[keys[i]]); }
+    else if (is.String(type) || is.Number(type)) { formData.append(keys[i], info.Data[keys[i]]); }
   }
 
-  if (typeof info.File === 'object' && info.File !== null) {
+  if (is.Object(info.File) && info.File !== null) {
     keys = Object.keys(info.File);
 
     for (let i = 0; i < keys.length; i++) { formData.append(keys[i], info.File[keys[i]]); }
@@ -94,7 +97,7 @@ function ajax (info) {
   // xhr.overrideMimeType('text/xml');
   xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // to use AJAX way.
 
-  if (typeof info.Hdrs === 'object' && info.Hdrs !== null) {
+  if (is.Object(info.Hdrs) && info.Hdrs !== null) {
     keys = Object.keys(info.Hdrs);
 
     for (let i = 0; i < keys.length; i++) { xhr.setRequestHeader(keys[i], info.Hdrs[keys[i]]); }
@@ -115,33 +118,51 @@ export class Plugin {
   /* do the 'task' function is on the browser environment.
     @ the task function will run on client (browser) side.
     < bool. */
-  OnBrowser (task) {
+  onBrowser (task) {
     if (typeof process === 'object') { return false; }
 
-    if (typeof task === 'function') { task(); }
+    if (is.Function(task)) { task(); }
 
     return true;
+  }
+  // To Do: deprecated. alias.
+  OnBrowser (task) {
+    log('"OnBrowser" will be deprecated, use "onBrowser" instead.', 'warn');
+
+    return this.onBrowser(task);
   }
 
   /* do the 'task' function if on the node environment.
     @ the task function will run on server (node) side.
     @ the request object in node.js, otherwise undefined. optional.
     < bool. */
-  OnNode (task) {
+  onNode (task) {
     if (typeof process !== 'object') { return false; }
 
-    if (typeof task === 'function') { task(this.Rqst); }
+    if (is.Function(task)) { task(this.Rqst); }
 
     return true;
+  }
+  // To Do: deprecated. alias.
+  OnNode (task) {
+    log('"OnNode" will be deprecated, use "onNode" instead.', 'warn');
+
+    return this.onNode(task);
   }
 
   /* get a store.
     @ a string of store key.
     < store object, or null. */
-  StoreGet (key) {
-    if (!key || typeof key !== 'string') { return null; }
+  storeGet (key) {
+    if (!key || !is.String(key)) { return null; }
 
     return this.Srvc.Sto[key] || null;
+  }
+  // To Do: deprecated. alias.
+  StoreGet (key) {
+    log('"StoreGet" will be deprecated, use "storeGet" instead.', 'warn');
+
+    return this.storeGet(key);
   }
 
   /* currently, this is only used by store.riot.
@@ -150,7 +171,7 @@ export class Plugin {
       @ the store object.
       @ params to task. to locate where the event comes from.
     @ run once in the beginning. */
-  StoreListen (storeName, then, runOnce = true) {
+  storeListen (storeName, then, runOnce = true) {
     const callbacks = this.Srvc.Rprt[storeName] || null;
 
     if (!callbacks || !Array.isArray(callbacks)) {
@@ -161,11 +182,17 @@ export class Plugin {
 
     if (runOnce && this.Srvc.Sto[storeName]) { then(this.Srvc.Sto[storeName], null); } // if the task store is ready, call once first.
   }
+  // To Do: deprecated. alias.
+  StoreListen (storeName, then, runOnce = true) {
+    log('"StoreListen" will be deprecated, use "storeListen" instead.', 'warn');
+
+    this.storeListen(storeName, then, runOnce);
+  }
 
   /* currently, this is only used by store.riot.
     @ store name.
     @ target report. */
-  StoreUnleash (storeName, targetReport) {
+  storeUnleash (storeName, targetReport) {
     const report = this.Srvc.Rprt[storeName];
 
     if (!report) { return; }
@@ -173,6 +200,12 @@ export class Plugin {
     for (let i = 0; i < report.length; i++) {
       if (report[i] === targetReport) { this.Srvc.Rprt[storeName].splice(i, 1); }
     }
+  }
+  // To Do: deprecated. alias.
+  StoreUnleash (storeName, targetReport) {
+    log('"StoreUnleash" will be deprecated, use "storeUnleash" instead.', 'warn');
+
+    this.storeUnleash(storeName, targetReport);
   }
 
   /*
@@ -182,8 +215,8 @@ export class Plugin {
       < new store object.
     @ params object passing to each task.
     < result code. 0 as fine, < 0 as error. */
-  StoreSet (storeName, newStoreGet, paramsToTask) {
-    if (!storeName || typeof storeName !== 'string' || !newStoreGet || typeof newStoreGet !== 'function') { return -1; }
+  storeSet (storeName, newStoreGet, paramsToTask) {
+    if (!storeName || !is.String(storeName) || !newStoreGet || !is.Function(newStoreGet)) { return -1; }
 
     const report = this.Srvc.Rprt[storeName] || [];
 
@@ -195,10 +228,16 @@ export class Plugin {
 
     return 0;
   }
+  // To Do: deprecated. alias.
+  StoreSet (storeName, newStoreGet, paramsToTask) {
+    log('"StoreSet" will be deprecated, use "storeSet" instead.', 'warn');
+
+    return this.storeSet(storeName, newStoreGet, paramsToTask);
+  }
 
   /* the generated Riot code in browser will call this to initialize Riot-4-Fun Store.
     @ store json string. */
-  StoreInject (storeString) {
+  storeInject (storeString) {
     try {
       this.Srvc.Sto = JSON.parse(storeString);
     }
@@ -206,10 +245,16 @@ export class Plugin {
       console.log(Err); // eslint-disable-line no-console
     }
   }
+  // To Do: deprecated. alias.
+  StoreInject (storeString) {
+    log('"StoreInject" will be deprecated, use "storeInject" instead.', 'warn');
+
+    this.storeInject(storeString);
+  }
 
   /* print store as browser Js code to initialize Riot-4-Fun Store support in browser environment.
     this only works on node.js to generates HTML page source code. */
-  StorePrint () {
+  storePrint () {
     const stores = Object.entries(this.Srvc.Sto);
 
     if (this.Srvc.Sto.PAGE) {
@@ -224,9 +269,15 @@ export class Plugin {
     return `
       <script id='riot-4-fun-store' type='application/json'>${JSON.stringify(this.Srvc.Sto)}</script>
       <script type='module'>
-        window.riotPlugin.StoreInject(document.getElementById('riot-4-fun-store').textContent);
+        window.riotPlugin.storeInject(document.getElementById('riot-4-fun-store').textContent);
       </script>
     `;
+  }
+  // To Do: deprecated. alias.
+  StorePrint () {
+    log('"StorePrint" will be deprecated, use "storePrint" instead.', 'warn');
+
+    return this.storePrint();
   }
 
   /* a service which also take cover Store manage.
@@ -239,10 +290,10 @@ export class Plugin {
     @ params object passing to each task. optional.
     @ the service cases object in node.js, otherwise undefined. optional.
     < result code. */
-  ServiceCall (url, params, storeName, newStoreGet, paramsToTask, ajxOptions) {
+  serviceCall (url, params, storeName, newStoreGet, paramsToTask, ajxOptions) {
     let method = 'POST';
 
-    if (typeof url === 'object' && url.Mthd) {
+    if (is.Object(url) && url.Mthd) {
       method = url.Mthd;
       url = url.Url;
     }
@@ -250,8 +301,7 @@ export class Plugin {
       return -1;
     }
 
-    if (!storeName || typeof storeName !== 'string' ||
-        !newStoreGet || typeof newStoreGet !== 'function')
+    if (!storeName || !is.String(storeName) || !newStoreGet || !is.Function(newStoreGet))
     { return -2; }
 
     const service = this.Srvc;
@@ -287,20 +337,43 @@ export class Plugin {
 
     return 0;
   }
+  // To Do: deprecated. alias.
+  ServiceCall (url, params, storeName, newStoreGet, paramsToTask, ajxOptions) {
+    log('"ServiceCall" will be deprecated, use "serviceCall" instead.', 'warn');
 
-  Bind (component) {
-    component.OnBrowser = this.OnBrowser;
-    component.OnNode = (...values) => this.OnNode.apply(this, values);
-    component.StoreGet = (...values) => this.StoreGet.apply(this, values);
-    component.StoreListen = (...values) => this.StoreListen.apply(this, values); // currently, only Store.riot uses.
-    component.StoreUnleash = (...values) => this.StoreUnleash.apply(this, values); // currently, only Store.riot uses.
-    component.StoreSet = (...values) => this.StoreSet.apply(this, values);
+    return this.serviceCall(url, params, storeName, newStoreGet, paramsToTask, ajxOptions);
+  }
 
-    if (this.OnBrowser()) {
-      component.ServiceCall = (...values) => this.ServiceCall.apply(this, values);
+  bind (component) {
+    component.onBrowser = this.onBrowser;
+    component.onNode = (...values) => this.onNode.apply(this, values);
+    component.storeGet = (...values) => this.storeGet.apply(this, values);
+    component.storeListen = (...values) => this.storeListen.apply(this, values); // currently, only Store.riot uses.
+    component.storeUnleash = (...values) => this.storeUnleash.apply(this, values); // currently, only Store.riot uses.
+    component.storeSet = (...values) => this.storeSet.apply(this, values);
+
+    // To Do: deprecated. alias.
+    component.OnBrowser = this.onBrowser;
+    component.OnNode = (...values) => this.onNode.apply(this, values);
+    component.StoreGet = (...values) => this.storeGet.apply(this, values);
+    component.StoreListen = (...values) => this.storeListen.apply(this, values); // currently, only Store.riot uses.
+    component.StoreUnleash = (...values) => this.storeUnleash.apply(this, values); // currently, only Store.riot uses.
+    component.StoreSet = (...values) => this.storeSet.apply(this, values);
+
+    if (this.onBrowser()) {
+      component.serviceCall = (...values) => this.serviceCall.apply(this, values);
+
+      // To Do: deprecated. alias.
+      component.ServiceCall = (...values) => this.serviceCall.apply(this, values);
     }
 
     return component;
+  }
+  // To Do: deprecated. alias.
+  Bind (component) {
+    log('"Bind" will be deprecated, use "bind" instead.', 'warn');
+
+    return this.bind(component);
   }
 }
 

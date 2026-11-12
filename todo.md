@@ -9,3 +9,4 @@
 - cover-box into r4f ?
 - eslint html check for riot.
 - retire r4f desccription, keywords, author, use meta instead.
+- nodemon in r4f dev ?

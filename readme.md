@@ -145,7 +145,7 @@ export default { // riot-4-fun config.
       js: [ '/library.js' ],
       body: {
         component: './src/components/home.riot',
-        Initialize: homePage,
+        initialize: homePage,
       },
     },
     '/page1': {

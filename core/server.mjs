@@ -198,7 +198,7 @@ function riotRender (request, body, next) {
   @ page config.
   < HTML header inner HTML string. */
 function getHeader (riotPlugin, pageConfig) {
-  const pageStore = riotPlugin.StoreGet('PAGE') || {}; // riot plugin instance page store.
+  const pageStore = riotPlugin.storeGet('PAGE') || {}; // riot plugin instance page store.
 
   const {
     author, // To Do: deprecate.
@@ -285,7 +285,7 @@ function pageRespond (request, response, vite = null, path, pageConfig, entryCli
 
   request.riotPlugin = new RiotPlugin(request); // put riot plugin instance into request object.
 
-  riot.install(component => { request.riotPlugin.Bind(component); }); // bind RiotPlugin functions to each component on server side rendering.
+  riot.install(component => { request.riotPlugin.bind(component); }); // bind RiotPlugin functions to each component on server side rendering.
 
   return riotRender(
     request,
@@ -343,7 +343,7 @@ function pageRespond (request, response, vite = null, path, pageConfig, entryCli
             window.hydrate = hydrate;
             window.riotPlugin = new RiotPlugin();
 
-            install(component => window.riotPlugin.Bind(component));
+            install(component => window.riotPlugin.bind(component));
           </script>
         `;
       } else {
@@ -369,7 +369,7 @@ function pageRespond (request, response, vite = null, path, pageConfig, entryCli
 
       const moduleName = name.replace(/-\w/g, one => one.slice(1).toUpperCase());
 
-      let scriptString = request.riotPlugin.StorePrint();
+      let scriptString = request.riotPlugin.storePrint();
 
       if (vite) {
         scriptString += `

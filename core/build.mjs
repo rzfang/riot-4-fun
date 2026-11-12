@@ -71,7 +71,7 @@ async function clientBuild (entryCode) {
     window.hydrate = hydrate;
     window.riotPlugin = new RiotPlugin();
 
-    install(component => window.riotPlugin.Bind(component));
+    install(component => window.riotPlugin.bind(component));
   `;
 
   await fs.promises.writeFile('.r4f/entry-client.mjs', jsCodeTrim(jsCode));
