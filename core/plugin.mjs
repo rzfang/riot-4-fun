@@ -35,7 +35,7 @@ function ajax (info) {
     OK: () => {},
   }; // OK callback function. optional. 'RpsTxt' = Response Text, 'Sts' = HTTP Status code.
 
-  if (is.String(info.URL) || info.URL === '') { return null; }
+  if (!is.String(info.URL) || info.URL === '') { return null; }
 
   info.Data = (is.Object(info.Data) && info.Data !== null) ? info.Data : defaultInfo.Data;
   info.Mthd = info.Mthd || 'GET';
@@ -353,18 +353,18 @@ export class Plugin {
     component.storeSet = (...values) => this.storeSet.apply(this, values);
 
     // To Do: deprecated. alias.
-    component.OnBrowser = this.onBrowser;
-    component.OnNode = (...values) => this.onNode.apply(this, values);
-    component.StoreGet = (...values) => this.storeGet.apply(this, values);
-    component.StoreListen = (...values) => this.storeListen.apply(this, values); // currently, only Store.riot uses.
-    component.StoreUnleash = (...values) => this.storeUnleash.apply(this, values); // currently, only Store.riot uses.
-    component.StoreSet = (...values) => this.storeSet.apply(this, values);
+    component.OnBrowser = this.OnBrowser;
+    component.OnNode = (...values) => this.OnNode.apply(this, values);
+    component.StoreGet = (...values) => this.StoreGet.apply(this, values);
+    component.StoreListen = (...values) => this.StoreListen.apply(this, values); // currently, only Store.riot uses.
+    component.StoreUnleash = (...values) => this.StoreUnleash.apply(this, values); // currently, only Store.riot uses.
+    component.StoreSet = (...values) => this.StoreSet.apply(this, values);
 
     if (this.onBrowser()) {
       component.serviceCall = (...values) => this.serviceCall.apply(this, values);
 
       // To Do: deprecated. alias.
-      component.ServiceCall = (...values) => this.serviceCall.apply(this, values);
+      component.ServiceCall = (...values) => this.ServiceCall.apply(this, values);
     }
 
     return component;
