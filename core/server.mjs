@@ -410,8 +410,10 @@ function pageRespond (request, response, vite = null, path, pageConfig, entryCli
       `;
 
       if (vite) {
+        const key = request.originalUrl.split('#')[0];
+
         vite
-          .transformIndexHtml(path, htmlString)
+          .transformIndexHtml(key, htmlString)
           .then(html => {
             response.writeHead(response.statusCode, { 'Content-Type': 'text/html' });
             response.write(html.replace(/\n +/g, ''));
